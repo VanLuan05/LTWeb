@@ -435,7 +435,7 @@ GO
 -- PHẦN 5: KIỂM TRA DỮ LIỆU (Tùy chọn - có thể bỏ khi deploy)
 -- =====================================================
 -- SELECT * FROM DanhMuc;
--- SELECT * FROM SanPham;
+SELECT * FROM SanPham;
 -- SELECT * FROM PhanLoaiSanPham;
 -- SELECT * FROM SanPham_PhanLoai;
 -- SELECT * FROM NguoiDung;
