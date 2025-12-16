@@ -1,0 +1,165 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Hoa Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar-link {
+            transition: all 0.3s ease;
+        }
+
+            .sidebar-link:hover {
+                background-color: rgba(99, 102, 241, 0.1);
+                border-left: 4px solid #6366f1;
+            }
+            /* Bạn có thể dùng logic C# để check class active sau này */
+            .sidebar-link.active {
+                background-color: rgba(99, 102, 241, 0.15);
+                border-left: 4px solid #6366f1;
+                color: #6366f1;
+            }
+
+        .sidebar {
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<body class="bg-gray-100">
+    <div class="flex h-screen overflow-hidden">
+        <aside class="sidebar w-64 bg-gray-900 text-white flex-shrink-0 hidden lg:block">
+            <div class="p-6">
+                <div class="flex items-center space-x-3 mb-8">
+                    <div class="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-store text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-lg">Fashion Store</h1>
+                        <p class="text-xs text-gray-400">Admin Panel</p>
+                    </div>
+                </div>
+
+                <div class="bg-gray-800 rounded-lg p-4 mb-6">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-indigo-500 rounded-full flex items-center justify-center">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="font-semibold text-sm truncate">admin@fashionstore.com</p>
+                            <p class="text-xs text-gray-400 capitalize">Administrator</p>
+                        </div>
+                    </div>
+                </div>
+
+                <nav class="space-y-1">
+                    @{
+                        // >>> PHẦN ĐỊNH NGHĨA BIẾN CẦN THIẾT <<<
+                        // Lấy tên Controller và Action hiện tại
+                        string currentController = ViewContext.RouteData.Values["controller"].ToString();
+                        string currentAction = ViewContext.RouteData.Values["action"].ToString();
+
+                        // Hàm kiểm tra và trả về class 'active'
+                        Func<string, string, string> GetActiveClass = (action, controller) =>
+                            currentController.Equals(controller, StringComparison.OrdinalIgnoreCase) &&
+                            currentAction.Equals(action, StringComparison.OrdinalIgnoreCase) ? "active" : "";
+                    }
+                    <div x-data="{ open: (@(currentController == "Flower" || currentController == "Admin" && (currentAction.Contains("Flower") || currentAction == "AddProduct")).ToString().ToLower()) }">
+                        <button type="button" @@click="open = ! open" class="sidebar-link w-full flex items-center justify-between px-4 py-3 rounded-lg text-sm transition duration-150 ease-in-out">
+                            <div class="flex items-center space-x-3">
+                                <a href="@Url.Action("FlowerManager", "Admin")">
+                                    <i class="fas fa-seedling w-5"></i>
+                                    <span>Quản lý</span>
+                                </a>
+                            </div>
+                            <i class="fas" class="{ 'fa-chevron-down': open, 'fa-chevron-right': !open }"></i>
+                        </button>
+
+                        <div x-show="open" x-collapse>
+                            <a href="@Url.Action("FlowerManager", "Admin")" class="sidebar-link block pl-12 pr-4 py-2 text-xs text-gray-300">
+                                <i class="fas fa-list-alt mr-2"></i> Quản lý hoa
+                            </a>
+                            <a href="@Url.Action("AddProduct", "Admin")" class="sidebar-link block pl-12 pr-4 py-2 text-xs text-gray-300">
+                                <i class="fas fa-plus-circle mr-2"></i> Thêm hoa mới
+                            </a>
+                            <a href="@Url.Action("CategoryManager", "Admin")" class="sidebar-link block pl-12 pr-4 py-2 text-xs text-gray-300">
+                                <i class="fas fa-tags mr-2"></i> Quản lý danh mục
+                            </a>
+                            <a href="@Url.Action("AddCategory", "Admin")" class="sidebar-link block pl-12 pr-4 py-2 text-xs text-gray-300">
+                                <i class="fas fa-plus-circle mr-2"></i> Thêm danh mục mới
+                            </a>
+                        </div>
+                    </div>
+                    <a href="@Url.Action("Index", "Admin")" class="sidebar-link @GetActiveClass("MoneyMoney", "Admin") flex items-center space-x-3 px-4 py-3 rounded-lg text-sm">
+                        <i class="fas fa-chart-line w-5"></i>
+                        <span>Thống kê</span>
+                    </a>
+                    <a href="@Url.Action("DonHang", "Admin")" class="sidebar-link @GetActiveClass("DonHang", "Admin") flex items-center space-x-3 px-4 py-3 rounded-lg text-sm">
+                        <i class="fas fa-shopping-cart w-5"></i>
+                        <span>Đơn hàng</span>
+                    </a>
+
+                    <a href="@Url.Action("TaiKhoan", "Admin")" class="sidebar-link @GetActiveClass("TaiKhoan", "Admin") flex items-center space-x-3 px-4 py-3 rounded-lg text-sm">
+                        <i class="fas fa-users w-5"></i>
+                        <span>Tài khoản</span>
+                    </a>
+                    <a href="@Url.Action("QLLienHe", "Admin")" class="sidebar-link @GetActiveClass("QLLienHe", "Admin") flex items-center space-x-3 px-4 py-3 rounded-lg text-sm">
+                        <i class="fas fa-fw fa-envelope"></i>
+                        <span>Khách hàng liên hệ</span>
+                    </a>
+                    
+                    <div class="border-t border-gray-700 my-4"></div>
+                    <a href="@Url.Action("Index", "Home")" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg text-sm">
+                        <i class="fas fa-home w-5"></i>
+                        <span>Trang chủ</span>
+                    </a>
+                    <a href="@Url.Action("Logout", "Admin")" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg text-sm text-red-400">
+                        <i class="fas fa-sign-out-alt w-5"></i>
+                        <span>Đăng xuất</span>
+                    </a>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <header class="bg-white shadow-sm z-10">
+                <div class="px-6 py-4 flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <button class="lg:hidden text-gray-600">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
+                        <h2 class="text-2xl font-bold text-gray-800">
+                            @if (ViewBag.PageTitle != null)
+                            {
+                                @ViewBag.PageTitle
+                            }
+                            else
+                            {
+                                <text>Dashboard</text>
+                            }
+                        </h2>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <input type="text" placeholder="Tìm kiếm..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                        </div>
+                        <button class="relative text-gray-600 hover:text-gray-800">
+                            <i class="fas fa-bell text-xl"></i>
+                            <span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">3</span>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <main class="flex-1 overflow-y-auto bg-gray-100 p-6">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    @RenderSection("scripts", required: false)
+</body>
+</html>

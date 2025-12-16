@@ -1,0 +1,71 @@
+﻿@model DonHang
+
+@{
+    ViewBag.Title = "Chi tiết đơn hàng #" + Model.MADH;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 style="color:#036b03">Chi tiết đơn hàng #@Model.MADH</h4>
+        <a href="@Url.Action("Index", "DonHang")" class="btn btn-secondary btn-sm">&larr; Quay lại danh sách</a>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6 class="text-muted">Thông tin đặt hàng</h6>
+                    <p class="mb-1"><strong>Ngày đặt:</strong> @string.Format("{0:dd/MM/yyyy HH:mm}", Model.NGAYDAT)</p>
+                    <p class="mb-1"><strong>Trạng thái:</strong> @(Model.TRANG_THAI ?? "Đang xử lý")</p>
+                    <p class="mb-1"><strong>Thanh toán:</strong> @(Model.PHUONGTHUCTHANHTOAN ??  "Thanh toán khi nhận hàng (COD)")</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <h6 class="text-muted">Giao đến</h6>
+                    <p class="mb-1"><strong>Người nhận:</strong> @Model.NguoiDung.HOTEN</p>
+                    <p class="mb-1"><strong>SĐT:</strong> @Model.NguoiDung.SODIENTHOAI</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive border rounded">
+        <table class="table align-middle mb-0">
+            <thead class="bg-light">
+                <tr>
+                    <th>Sản phẩm</th>
+                    <th class="text-center">Đơn giá</th>
+                    <th class="text-center">Số lượng</th>
+                    <th class="text-end">Thành tiền</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{decimal tongCong = 0; }
+                @foreach (var item in Model.ChiTietDonHangs)
+                {
+                    decimal thanhTien = (decimal)(item.SOLUONG * item.THANHTIEN);
+                    tongCong += thanhTien;
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <img src="~/Content/hinhanh/@item.SanPham.URL_ANH" alt="" style="width: 60px; height: 60px; object-fit: cover; margin-right: 15px;" class="rounded border">
+                                <div>
+                                    <div class="fw-bold">@item.SanPham.TENSP</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-center">@string.Format("{0:#,###}", item.THANHTIEN) đ</td>
+                        <td class="text-center">x @item.SOLUONG</td>
+                        <td class="text-end fw-bold">@string.Format("{0:#,###}", thanhTien) đ</td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot class="bg-light">
+                <tr>
+                    <td colspan="3" class="text-end fw-bold">Tổng cộng:</td>
+                    <td class="text-end fw-bold text-danger fs-5">@string.Format("{0:#,###}", tongCong) đ</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>

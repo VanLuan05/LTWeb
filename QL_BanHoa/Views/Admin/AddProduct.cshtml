@@ -1,0 +1,90 @@
+﻿﻿
+@{
+    ViewBag.Title = "Thêm Sản Phẩm";
+    ViewBag.PageTitle = "Thêm Sản Phẩm";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-md">
+    <div class="flex justify-between items-center mb-6">
+        <h3 class="text-xl font-semibold text-gray-800">Thông Tin Sản Phẩm Mới</h3>
+        <a href="@Url.Action("FlowerManager", "Admin")" class="text-gray-500 hover:text-gray-700">
+            <i class="fas fa-arrow-left"></i> Quay lại
+        </a>
+    </div>
+
+    @* Form gửi dữ liệu *@
+    @using (Html.BeginForm("AddProduct", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        <div class="space-y-6">
+            @* Hàng 1: Tên sản phẩm & Danh mục *@
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tên Sản Phẩm <span class="text-red-500">*</span></label>
+                    <input type="text" name="TENSP" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="Nhập tên hoa...">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Danh Mục <span class="text-red-500">*</span></label>
+                    <select name="MADM" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="">-- Chọn danh mục --</option>
+                        @if (ViewBag.DanhSachDanhMuc != null)
+                        {
+                            foreach (var dm in ViewBag.DanhSachDanhMuc)
+                            {
+                                <option value="@dm.MADM">@dm.TENDM</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+
+            @* Hàng 2: Giá & Số lượng tồn *@
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Giá Bán (VNĐ) <span class="text-red-500">*</span></label>
+                    <input type="number" name="GIA" required min="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="Nhập giá bán">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Số Lượng Tồn <span class="text-red-500">*</span></label>
+                    <input type="number" name="SOLUONGTON" required min="0" value="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+            </div>
+
+            @* Hàng 3: Đơn vị tính & Trạng thái *@
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Đơn Vị Tính</label>
+                    <input type="text" name="DONVITINH" value="Bó" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="Ví dụ: Bó, Giỏ, Lẵng...">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Trạng Thái</label>
+                    <select name="TRANGTHAI" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="Còn hàng">Còn hàng</option>
+                        <option value="Hết hàng">Hết hàng</option>
+                        <option value="Ngừng kinh doanh">Ngừng kinh doanh</option>
+                    </select>
+                </div>
+            </div>
+
+            @* Ảnh sản phẩm *@
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Ảnh Sản Phẩm</label>
+                <input type="file" name="anhSanPham" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                <p class="mt-1 text-xs text-gray-500">Chấp nhận file ảnh: jpg, png, jpeg...</p>
+            </div>
+
+            @* Mô tả *@
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Mô Tả Chi Tiết</label>
+                <textarea name="MOTA" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="Nhập mô tả sản phẩm..."></textarea>
+            </div>
+
+            @* Nút Submit *@
+            <div class="flex justify-end pt-4 border-t border-gray-200">
+                <button type="submit" class="px-6 py-2 bg-indigo-600 text-white font-medium rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all">
+                    <i class="fas fa-plus mr-2"></i> Thêm Sản Phẩm
+                </button>
+            </div>
+        </div>
+    }
+</div>

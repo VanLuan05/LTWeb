@@ -1,0 +1,112 @@
+﻿@model List<QL_BanHoa.DonHang>
+@{
+    ViewBag.Title = "Quản Lý Đơn Hàng";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="bg-white p-6 rounded-xl shadow-md">
+    <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-semibold text-gray-800">Tất Cả Đơn Hàng</h3>
+
+        <button onclick="window.print()" class="px-4 py-2 bg-red-500 text-white text-sm font-medium rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+            <i class="fas fa-file-pdf mr-2"></i> Xuất Danh Sách PDF
+        </button>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mã Đơn</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Khách Hàng</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tổng Tiền</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng Thái</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày Đặt</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao Tác</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                @if (Model != null && Model.Count > 0)
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                #@item.MADH
+                            </td>
+
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                @(item.NguoiDung != null ? item.NguoiDung.HOTEN : "Khách vãng lai")
+                            </td>
+
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-700">
+                                @string.Format("{0:#,###} đ", item.TONGTIEN)
+                            </td>
+
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                @if (item.TRANG_THAI == "Đang xử lý" || item.TRANG_THAI == "Chờ xử lý")
+                                {
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                        @item.TRANG_THAI
+                                    </span>
+                                }
+                                else if (item.TRANG_THAI == "Đang giao")
+                                {
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                        @item.TRANG_THAI
+                                    </span>
+                                }
+                                else if (item.TRANG_THAI == "Đã giao")
+                                {
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                        @item.TRANG_THAI
+                                    </span>
+                                }
+                                else if (item.TRANG_THAI == "Đã hủy")
+                                {
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                        @item.TRANG_THAI
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                        @(item.TRANG_THAI ?? "Mới")
+                                    </span>
+                                }
+                            </td>
+
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                @string.Format("{0:dd/MM/yyyy}", item.NGAYDAT)
+                            </td>
+
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <a href="@Url.Action("ChiTietDonHang", "Admin", new { id = item.MADH })" class="text-indigo-600 hover:text-indigo-900 mr-3" title="Xem chi tiết">
+                                    <i class="fas fa-eye"></i> Chi tiết
+                                </a>
+
+                                <a href="@Url.Action("XuatHoaDonPDF", "Admin", new { id = item.MADH })" class="text-green-600 hover:text-green-900 mr-3" title="Tải PDF">
+                                    <i class="fas fa-file-pdf"></i> In HĐ
+                                </a>
+
+                                <a href="@Url.Action("CapNhatTrangThai", "Admin", new { id = item.MADH, trangThai = "Đã hủy" })"
+                                   class="text-red-600 hover:text-red-900"
+                                   onclick="return confirm('Bạn có chắc muốn hủy đơn hàng này?');" title="Hủy đơn">
+                                    <i class="fas fa-times"></i> Hủy
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
+                            Chưa có dữ liệu đơn hàng.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

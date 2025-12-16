@@ -1,0 +1,38 @@
+﻿@model IEnumerable<QL_BanHoa.DanhMuc>
+<link href="~/Content/css/menu_stype.css" rel="stylesheet" />
+<div class="horizontal-menu-container">
+    <ul class="horizontal-menu">
+        @foreach (var danhMuc in Model.Where(d => d.TRANGTHAI == "Hiển thị").OrderBy(d => d.TENDM))
+        {
+            <li class="menu-item @(danhMuc.DanhMuc1.Any() ? "has-dropdown" : "")">
+                <a href="@Url.Action("Index", "DanhMuc", new { id = danhMuc.MADM })" class="menu-link">
+                    @danhMuc.TENDM
+                    @if (danhMuc.DanhMuc1.Any())
+                    {
+                        <span class="dropdown-arrow">▼</span>
+                    }
+                </a>
+
+                @if (danhMuc.DanhMuc1.Any())
+                {
+                    <div class="dropdown-submenu">
+                        @foreach (var dmCon in danhMuc.DanhMuc1.Where(d => d.TRANGTHAI == "Hiển thị").OrderBy(d => d.TENDM))
+                        {
+                            <a href="@Url.Action("Index", "DanhMuc", new { id = dmCon.MADM })" class="submenu-item">
+                                @dmCon.TENDM
+                                @{
+                                    var count = dmCon.SanPhams.Count(sp => sp.TRANGTHAI == "Còn hàng");
+                                }
+                                @if (count > 0)
+                                {
+                                    <span class="product-count">(@count)</span>
+                                }
+                            </a>
+                        }
+                    </div>
+                }
+            </li>
+        }
+    </ul>
+</div>
+

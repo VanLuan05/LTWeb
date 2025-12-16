@@ -1,0 +1,604 @@
+﻿@model QL_BanHoa.Models.TrangChu
+@{
+    ViewBag.Title = "Trang Chủ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div id="carouselExampleCaptions" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">
+    <div class="carousel-indicators">
+        <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+        <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="1" aria-label="Slide 2"></button>
+        <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="2" aria-label="Slide 3"></button>
+    </div>
+    <div class="carousel-inner">
+        <div class="carousel-item active" data-bs-interval="3000">
+            <img src="~/Content/HinhAnh/banner1.png" class="d-block w-100" alt="banner">
+        </div>
+        <div class="carousel-item" data-bs-interval="3000">
+            <img src="~/Content/HinhAnh/banner2.jpg" class="d-block w-100" alt="banner">
+        </div>
+        <div class="carousel-item" data-bs-interval="3000">
+            <img src="~/Content/HinhAnh/banner1.png" class="d-block w-100" alt="banner">
+        </div>
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+    </button>
+</div>
+<!--Products 1: BÓ HOA RẺ HÔM NAY-->
+<div class="khungmh">
+    <div class="khung1mh">
+        <div class="khungmh">
+            <div class="titlemh"> <b>BÓ HOA RẺ HÔM NAY</b></div>
+        </div>
+        <div class="linemh"></div>
+
+        <div id="carouselExampleControls" class="carousel carousel-dark slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <div class="product-box2mh">
+                        @foreach (var item in Model.BoHoaReHomNay.Take(6))
+                        {
+                            <div class="box2mh">
+                                <a href="@Url.Action("ChiTiet", "Home", new { id = item.MASP })" style="text-decoration:none">
+                                    <div class="covermh-img">
+                                        <img src="~/Content/hinhanh/@item.URL_ANH" alt="@item.TENSP" />
+                                        @if (item.KHUYENMAI != null)
+                                        {
+                                            <span class="tagmh">-@item.KHUYENMAI.PHANTRAMGIAM%</span>
+                                        }
+                                        <span class="tagmh1"><b>NEW</b></span>
+                                    </div>
+                                    <div class="cover-tensp">
+                                        <div class="tensp">@item.TENSP</div>
+                                        <div style="color:black">
+                                            @{
+                                                decimal? giaGoc = item.GIA;
+                                                if (item.KHUYENMAI != null && item.KHUYENMAI.PHANTRAMGIAM > 0)
+                                                {
+                                                    giaGoc = item.GIA / (1 - (item.KHUYENMAI.PHANTRAMGIAM / 100m));
+                                                }
+                                            }
+                                            @if (item.KHUYENMAI != null && giaGoc.HasValue)
+                                            {
+                                                <span class="textmhgach">@giaGoc.Value.ToString("N0")đ</span>
+                                            }
+                                            <br /><span class="h5 text-danger mb-0">@String.Format("{0:N0}₫", item.GIA)</span>
+                                        </div>
+                                        <div class="mt-2">
+                                            <a href="@Url.Action("ThemGioHang", "GioHang", new { MaSP = item.MASP, url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
+                                                <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                            </a>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="carousel-item">
+                    <div class="product-box2mh">
+                        @foreach (var item in Model.BoHoaReHomNay.Skip(6).Take(6))
+                        {
+                            <div class="box2mh">
+                                <a href="@Url.Action("ChiTiet", "Home", new { id = item.MASP })" style="text-decoration:none">
+                                    <div class="covermh-img">
+                                        <img src="~/Content/hinhanh/@item.URL_ANH" alt="@item.TENSP" />
+                                        @if (item.KHUYENMAI != null)
+                                        {
+                                            <span class="tagmh">-@item.KHUYENMAI.PHANTRAMGIAM%</span>
+                                        }
+                                        <span class="tagmh1"><b>NEW</b></span>
+                                    </div>
+                                    <div class="cover-tensp">
+                                        <div class="tensp">@item.TENSP</div>
+                                        <div style="color:black">
+                                            <span class="textmhgach">@((item.GIA * 1.2m)?.ToString("N0"))đ</span>
+                                            <br /><span class="h5 text-danger mb-0">@String.Format("{0:N0}₫", item.GIA)</span>
+                                        </div>
+                                        <div class="mt-2">
+                                            <a href="@Url.Action("ThemGioHang", "GioHang", new { MaSP = item.MASP, url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
+                                                <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                            </a>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselBoHoaRe" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselBoHoaRe" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+
+        <a class="btn xemthem" href="@Url.Action("DanhMuc", "SanPham", new { phanLoai = "BoHoaRe" })" role="button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="25" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16" style="margin-bottom:3px;">
+                <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5" />
+            </svg>
+            Xem thêm bó hoa giá rẻ
+        </a>
+    </div>
+</div>
+
+<!--Products 2: BÓ HOA TƯƠI HÔM NAY-->
+<div class="khungmh">
+    <div class="khung1mh">
+        <div class="khungmh">
+            <div class="titlemh"><b>BÓ HOA TƯƠI HÔM NAY</b></div>
+        </div>
+        <div class="linemh"></div>
+        <div class="khungmh">
+            <div class="product-box3mh">
+                @foreach (var item in Model.BoHoaTuoiHomNay.Take(10))
+                {
+                    <div class="box2mh">
+                        <a href="@Url.Action("ChiTiet", "Home", new { id = item.MASP })" style="text-decoration:none">
+                            <div class="covermh-img">
+                                <img src="~/Content/hinhanh/@item.URL_ANH" alt="@item.TENSP" />
+                                @if (item.KHUYENMAI != null)
+                                {
+                                    <span class="tagmh">-@item.KHUYENMAI.PHANTRAMGIAM%</span>
+                                }
+                                <span class="tagmh1"><b>NEW</b></span>
+                            </div>
+                            <div class="cover-tensp">
+                                <div class="tensp">@item.TENSP</div>
+                                <div style="color:black">
+                                    <span class="textmhgach">@((item.GIA * 1.15m)?.ToString("N0"))đ</span>
+                                    <br /><span class="h5 text-danger mb-0">@String.Format("{0:N0}₫", item.GIA)</span>
+                                </div>
+                                <div class="mt-2">
+                                    <a href="@Url.Action("ThemGioHang", "GioHang", new { MaSP = item.MASP, url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
+                                        <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                    </a>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+        <a class="btn xemthem" href="@Url.Action("DanhMuc", "SanPham", new { phanLoai = "BoHoaTuoi" })" role="button">
+            <!-- Same button content -->
+        </a>
+    </div>
+</div>
+
+<!--Products 3: GARDEN STYLE-->
+<div class="khungmh">
+    <div class="khung1mh">
+        <div class="khungmh">
+            <div class="titlemh"><b>GARDEN STYLE</b></div>
+        </div>
+        <div class="linemh"></div>
+        <div class="khungmh">
+            <div class="product-box3mh">
+                @foreach (var item in Model.GardenStyle.Take(6))
+                {
+                    <div class="box2mh">
+                        <a href="@Url.Action("ChiTiet", "Home", new { id = item.MASP })" style="text-decoration:none">
+                            <div class="covermh-img">
+                                <img src="~/Content/hinhanh/@item.URL_ANH" alt="@item.TENSP" />
+                                @if (item.KHUYENMAI != null)
+                                {
+                                    <span class="tagmh">-@item.KHUYENMAI.PHANTRAMGIAM%</span>
+                                }
+                            </div>
+                            <div class="cover-tensp">
+                                <div class="tensp">@item.TENSP</div>
+                                <div style="color:black">
+                                    <span class="textmhgach">@((item.GIA * 1.1m)?.ToString("N0"))đ</span>
+                                    <br /><span class="h5 text-danger mb-0">@String.Format("{0:N0}₫", item.GIA)</span>
+                                </div>
+                                <div class="mt-2">
+                                    <a href="@Url.Action("ThemGioHang", "GioHang", new { MaSP = item.MASP, url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
+                                        <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                    </a>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+        <a class="btn xemthem" href="@Url.Action("DanhMuc", "SanPham", new { phanLoai = "GardenStyle" })" role="button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="25" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16" style="margin-bottom:3px;">
+                <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5" />
+            </svg>
+            Xem thêm bó hoa tulip
+        </a>
+    </div>
+</div>
+<!--Products 4-->
+<div class="khungmh">
+    <div class="khung1mh">
+        <div class="khungmh">
+            <div class="titlemh"><b>HOA TULIP SANG TRỌNG</b></div>
+        </div>
+        <div class="linemh"></div>
+        <div class="khungmh">
+            <div class="product-box3mh">
+                @foreach (var item in Model.GardenStyle.Take(6))
+                {
+                    <div class="box2mh">
+                        <a href="@Url.Action("ChiTiet", "Home", new { id = item.MASP })" style="text-decoration:none">
+                            <div class="covermh-img">
+                                <img src="~/Content/hinhanh/@item.URL_ANH" alt="@item.TENSP" />
+                                @if (item.KHUYENMAI != null)
+                                {
+                                    <span class="tagmh">-@item.KHUYENMAI.PHANTRAMGIAM%</span>
+                                }
+                            </div>
+                            <div class="cover-tensp">
+                                <div class="tensp">@item.TENSP</div>
+                                <div style="color:black">
+                                    <span class="textmhgach">@((item.GIA * 1.1m)?.ToString("N0"))đ</span>
+                                    <br /><span class="h5 text-danger mb-0">@String.Format("{0:N0}₫", item.GIA)</span>
+                                </div>
+                                <div class="mt-2">
+                                    <a href="@Url.Action("ThemGioHang", "GioHang", new { MaSP = item.MASP, url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
+                                        <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                    </a>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                }
+                <!---->
+            </div>
+        </div>
+        <a class="btn xemthem" href="#" role="button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="25" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16" style="margin-bottom:3px;">
+                <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5" />
+            </svg>
+            Xem thêm bó hoa tulip
+        </a>
+    </div>
+</div>
+
+<!----------------------------------------------->
+<!--GIOITHIEU-->
+<div class="khungmh" style="margin-bottom:50px">
+    <div class="khung2mh">
+        <div>
+            <h4 style="color:#036b03"><b>BLOOM Shop Hoa Tươi Online Giao Hoa Tận Nơi TPHCM</b></h4>
+            <p style="color:#176019">Toạ lạc tại Trường đại học Công thương Thành phố Hồ Chí Minh, Tiệm hoa online <a href="#" style="text-decoration:none">BLOOM</a> là một shop hoa tươi đẹp chuyên về các sản phẩm hoa tươi với hơn 5 năm kinh nghiệm trong lĩnh vực cắm hoa khai trương, hoa sinh nhật, hoa tốt nghiệp, hoa tình yêu và hoa tỏ tình. Đi từ tâm huyết và sự yêu nghề, <a href="#" style="text-decoration:none">Shop hoa tươi BLOOM</a> luôn nỗ lực đáp ứng nhu cầu và mang đến những sản phẩm chất lượng cho Quý khách hàng với kim chỉ nam phục vụ: “Mỗi cành hoa trao đi là một tấm lòng chân thành gửi gắm”.</p>
+            <p style="color:#176019">Dưới đây là 3 lý do tuyệt vời để bạn lựa chọn đặt hoa tươi online tại BLOOM:</p>
+            <p>
+                <a class="btn" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample" style="background-color:#036b03; color:white">
+                    <b>Xem thêm</b>
+                </a>
+            </p>
+            <div class="collapse" id="collapseExample">
+                <div class="card card-body">
+                    <h5 style="background-color:#036b03; color:white; text-align:left; width:370px"><b>Vì Sao Nên Đặt Hoa Online Tại BLOOM</b></h5>
+                    <p style="color:#176019; text-align:left">Đặt hoa online đòi hỏi sự uy tín và tin cậy từ các shop hoa tươi. Thấu hiểu nỗi lo lắng đó của khách hàng, Chúng mình cam kết mang đến những sản phẩm giống mẫu đã chọn, đảm bảo hoa tươi thắm và đạt chuẩn. Tất cả sản phẩm hoa tươi tại tiệm hoa đều được niêm yết giá cả hợp lý, với dòng sản phẩm đa dạng phù hợp với nhiều phân khúc khách hàng, từ sinh viên, nhân viên văn phòng, đến các doanh nghiệp và đối tác.</p>
+                    <h5 style="background-color:#036b03; color:white; text-align:left; width:320px"><b>Đặt Hoa Online Giao Hoa Tận Nơi</b></h5>
+                    <p style="color:#176019; text-align:left">Thời đại số mang đến sự tiện lợi cho việc đặt hoa tươi online tặng sinh nhật, tốt nghiệp, khai trương. Chỉ cần liên hệ với Shop hoa tươi Quận Tân Phú hoặc chi nhánh Shop hoa tươi Quận 10, đội ngũ giao hoa sẽ nhanh chóng trao gửi yêu thương đến người nhận thay bạn. Bạn sẽ tiết kiệm rất nhiều thời gian khi chọn dịch vụ đặt hoa online. Chỉ cần ngồi tại văn phòng hay ở nhà, với vài cú nhấp chuột, bạn có thể khám phá các shop hoa tươi và đặt hoa dưới mọi điều kiện thời tiết.</p>
+                    <h5 style="background-color:#036b03; color:white; text-align:left; width:350px"><b>Hoa Tươi Online Dễ Dàng Chọn Mẫu</b></h5>
+                    <p style="color:#176019; text-align:left">Hơn nữa, đặt hoa online thông qua website hoa tươi giúp bạn dễ dàng lựa chọn mẫu hoa có sẵn hoặc tham khảo các mẫu hoa để lựa chọn. Giá cả luôn được công khai, giúp bạn so sánh và đối chiếu dễ dàng trước khi đặt hàng.</p>
+                    <h5 style="background-color:#036b03; color:white; text-align:left; width:350px"><b>Hoa Tươi Online Dễ Dàng Chọn Mẫu</b></h5>
+                    <p style="color:#176019; text-align:left">Hơn nữa, đặt hoa online thông qua trang website bán hoa tươi giúp bạn dễ dàng lựa chọn mẫu hoa có sẵn hoặc tham khảo các mẫu hoa để lựa chọn. Giá cả luôn được công khai, giúp bạn so sánh và đối chiếu dễ dàng trước khi đặt hàng.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!----------------------------------------------->
+<!--MENU2-->
+<div class="khungmh" style="margin-bottom:40px">
+    <div class="khung1mh">
+        <h4 style="color:#036b03; text-align:center"><b>XEM HOA NHANH THEO NHU CẦU</b></h4>
+        <div class="khungmh">
+            <div class="menumh2">
+                <div class="menumh2-box"><a href="#" style="text-decoration:none; color:white">Hoa Sinh Nhật</a></div>
+                <div class="menumh2-box"><a href="#" style="text-decoration:none; color:white">Hoa Khai Trương</a></div>
+                <div class="menumh2-box"><a href="#" style="text-decoration:none; color:white">Hoa Tốt Nghiệp</a></div>
+                <div class="menumh2-box"><a href="#" style="text-decoration:none; color:white">Hoa Tình Yêu</a></div>
+                <div class="menumh2-box"><a href="#" style="text-decoration:none; color:white">Hộp Hoa Mica</a></div>
+                <div class="menumh2-box"><a href="#" style="text-decoration:none; color:white">Hoa Gấu Bông</a></div>
+            </div>
+        </div>
+    </div>
+</div>
+<!------------>
+<!--Products 4-->
+<div class="khungmh">
+    <!--line-->
+    <div class="khung1mh">
+        <div class="khungmh">
+            <h5 class="titlemh1"> <b>HOA TƯƠI ƯA CHUỘNG</b></h5>
+        </div>
+        <div class="linemh1"></div>
+        <!--1-->
+        <div id="carouselExampleControls" class="carousel carousel-dark slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <div class="product-box2mh">
+                        @foreach (var item in Model.HoaTuoiUaChuong.Take(6))
+                        {
+                            <div class="box2mh">
+                                <a href="@Url.Action("ChiTiet", "Home", new { id = item.MASP })" style="text-decoration:none">
+                                    <div class="covermh-img">
+                                        <img src="~/Content/hinhanh/@item.URL_ANH" alt="@item.TENSP" />
+                                        @if (item.KHUYENMAI != null)
+                                        {
+                                            <span class="tagmh">-@item.KHUYENMAI.PHANTRAMGIAM%</span>
+                                        }
+                                        <span class="tagmh1"><b>NEW</b></span>
+                                    </div>
+                                    <div class="cover-tensp">
+                                        <div class="tensp">@item.TENSP</div>
+                                        <div style="color:black">
+                                            <span class="textmhgach">@((item.GIA * 1.15m)?.ToString("N0"))đ</span>
+                                            <br /><span class="h5 text-danger mb-0">@String.Format("{0:N0}₫", item.GIA)</span>
+                                            <div class="mt-2">
+                                                <a href="@Url.Action("ThemGioHang", "GioHang", new { MaSP = item.MASP, url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
+                                                    <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </a>
+                            </div>
+                            
+
+                        }
+                    </div>
+                </div>
+                <!--END-->
+                <div class="carousel-item">
+                    <div class="product-box2mh">
+                        @foreach (var item in Model.HoaTuoiUaChuong.Skip(6).Take(6))
+                        {
+                            <div class="box2mh">
+                                <a href="@Url.Action("ChiTiet", "Home", new { id = item.MASP })" style="text-decoration:none">
+                                    <div class="covermh-img">
+                                        <img src="~/Content/hinhanh/@item.URL_ANH" alt="@item.TENSP" />
+                                        @if (item.KHUYENMAI != null)
+                                        {
+                                            <span class="tagmh">-@item.KHUYENMAI.PHANTRAMGIAM%</span>
+                                        }
+                                        <span class="tagmh1"><b>NEW</b></span>
+                                    </div>
+                                    <div class="cover-tensp">
+                                        <div class="tensp">@item.TENSP</div>
+                                        <div style="color:black">
+                                            <span class="textmhgach">@((item.GIA * 1.15m)?.ToString("N0"))đ</span>
+                                            <br /><span class="h5 text-danger mb-0">@String.Format("{0:N0}₫", item.GIA)</span>
+                                        </div>
+                                        <div class="mt-2">
+                                            <a href="@Url.Action("ThemGioHang", "GioHang", new { MaSP = item.MASP, url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
+                                                <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                            </a>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <!--END-->
+                <div class="carousel-item">
+                    <div class="product-box2mh">
+                        @foreach (var item in Model.HoaTuoiUaChuong.Skip(6).Take(6))
+                        {
+                            <div class="box2mh">
+                                <a href="@Url.Action("ChiTiet", "Home", new { id = item.MASP })" style="text-decoration:none">
+                                    <div class="covermh-img">
+                                        <img src="~/Content/hinhanh/@item.URL_ANH" alt="@item.TENSP" />
+                                        @if (item.KHUYENMAI != null)
+                                        {
+                                            <span class="tagmh">-@item.KHUYENMAI.PHANTRAMGIAM%</span>
+                                        }
+                                        <span class="tagmh1"><b>NEW</b></span>
+                                    </div>
+                                    <div class="cover-tensp">
+                                        <div class="tensp">@item.TENSP</div>
+                                        <div style="color:black">
+                                            <span class="textmhgach">@((item.GIA * 1.15m)?.ToString("N0"))đ</span>
+                                            <br /><span class="h5 text-danger mb-0">@String.Format("{0:N0}₫", item.GIA)</span>
+                                        </div>
+                                        <div class="mt-2">
+                                            <a href="@Url.Action("ThemGioHang", "GioHang", new { MaSP = item.MASP, url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
+                                                <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                            </a>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+        <a class="btn xemthem" href="#" role="button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="25" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16" style="margin-bottom:3px;">
+                <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5" />
+            </svg>
+            Xem thêm bó hoa giá rẻ
+        </a>
+        <!---->
+    </div>
+</div>
+<!--Products 6: HỘP HOA TƯƠI MICA XINH-->
+<div class="khungmh">
+    <div class="khung1mh">
+        <div class="khungmh">
+            <h5 class="titlemh1"> <b>HỘP HOA TƯƠI MICA XINH</b></h5>
+        </div>
+        <div class="linemh1"></div>
+
+        <div id="carouselExampleControls" class="carousel carousel-dark slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <div class="product-box2mh">
+                        @foreach (var item in Model.HopHoaMicaXinh.Take(6))
+                        {
+                            <div class="box2mh">
+                                <a href="@Url.Action("ChiTiet", "Home", new { id = item.MASP })" style="text-decoration:none">
+                                    <div class="covermh-img">
+                                        <img src="~/Content/hinhanh/@item.URL_ANH" alt="@item.TENSP" />
+                                        @if (item.KHUYENMAI != null)
+                                        {
+                                            <span class="tagmh">-@item.KHUYENMAI.PHANTRAMGIAM%</span>
+                                        }
+                                        <span class="tagmh1"><b>NEW</b></span>
+                                    </div>
+                                    <div class="cover-tensp">
+                                        <div class="tensp">@item.TENSP</div>
+                                        <div style="color:black">
+                                            <span class="textmhgach">@((item.GIA * 1.15m)?.ToString("N0"))đ</span>
+                                            <br /><span class="h5 text-danger mb-0">@String.Format("{0:N0}₫", item.GIA)</span>
+                                        </div>
+                                        <div class="mt-2">
+                                            <a href="@Url.Action("ThemGioHang", "GioHang", new { MaSP = item.MASP, url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
+                                                <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                            </a>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="carousel-item">
+                    <div class="product-box2mh">
+                        @foreach (var item in Model.HopHoaMicaXinh.Skip(0).Take(6))
+                        {
+                            <div class="box2mh">
+                                <a href="@Url.Action("ChiTiet", "Home", new { id = item.MASP })" style="text-decoration:none">
+                                    <div class="covermh-img">
+                                        <img src="~/Content/hinhanh/@item.URL_ANH" alt="@item.TENSP" />
+                                        @if (item.KHUYENMAI != null)
+                                        {
+                                            <span class="tagmh">-@item.KHUYENMAI.PHANTRAMGIAM%</span>
+                                        }
+                                        <span class="tagmh1"><b>NEW</b></span>
+                                    </div>
+                                    <div class="cover-tensp">
+                                        <div class="tensp">@item.TENSP</div>
+                                        <div style="color:black">
+                                            <span class="textmhgach">@((item.GIA * 1.15m)?.ToString("N0"))đ</span>
+                                            <br /><span class="h5 text-danger mb-0">@String.Format("{0:N0}₫", item.GIA)</span>
+                                        </div>
+                                        <div class="mt-2">
+                                            <a href="@Url.Action("ThemGioHang", "GioHang", new { MaSP = item.MASP, url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
+                                                <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                            </a>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="carousel-item">
+                    <div class="product-box2mh">
+                        @foreach (var item in Model.HopHoaMicaXinh.Skip(0).Take(6))
+                        {
+                            <div class="box2mh">
+                                <a href="@Url.Action("ChiTiet", "Home", new { id = item.MASP })" style="text-decoration:none">
+                                    <div class="covermh-img">
+                                        <img src="~/Content/hinhanh/@item.URL_ANH" alt="@item.TENSP" />
+                                        @if (item.KHUYENMAI != null)
+                                        {
+                                            <span class="tagmh">-@item.KHUYENMAI.PHANTRAMGIAM%</span>
+                                        }
+                                        <span class="tagmh1"><b>NEW</b></span>
+                                    </div>
+                                    <div class="cover-tensp">
+                                        <div class="tensp">@item.TENSP</div>
+                                        <div style="color:black">
+                                            <span class="textmhgach">@((item.GIA * 1.15m)?.ToString("N0"))đ</span>
+                                            <br /><span class="h5 text-danger mb-0">@String.Format("{0:N0}₫", item.GIA)</span>
+                                        </div>
+                                        <div class="mt-2">
+                                            <a href="@Url.Action("ThemGioHang", "GioHang", new { MaSP = item.MASP, url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
+                                                <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                            </a>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselHopHoaMica" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselHopHoaMica" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+
+        <a class="btn xemthem" href="@Url.Action("DanhMuc", "SanPham", new { phanLoai = "HopHoaMica" })" role="button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="25" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16" style="margin-bottom:3px;">
+                <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5" />
+            </svg>
+            Xem thêm hộp hoa mica
+        </a>
+    </div>
+</div>
+<!--PHUCVU-->
+<div class="khungmh" style="margin-top:50px">
+    <div class="khung1mh">
+        <h3 style="color:#036b03; text-align:center"><b><a href="#" style="text-decoration:none">Shop Hoa Tươi Online</a> Phục Vụ:</b></h3>
+        <div class="khungmh" style="margin-top:10px">
+            <div class="row gap-xl-5">
+                <div class="col texticon">
+                    <img src="~/Content/HinhAnh/clock.png" style="width:100px" />
+                    <p>Giao Hoa Nhanh Trong 90-120 phút</p>
+                </div>
+                <div class="col texticon">
+                    <img src="~/Content/HinhAnh/freeship.png" style="width:100px" />
+                    <p><u><em>Miễn Phí Giao Hàng</em></u> (>300k - Quận 1 3 5 10)</p>
+                </div>
+                <div class="col texticon">
+                    <img src="~/Content/HinhAnh/free.png" style="width:100px" />
+                    <p>Miến Phí Thiệp Hoặc Decal In</p>
+                </div>
+                <div class="col texticon">
+                    <img src="~/Content/HinhAnh/ship.png" style="width:100px" />
+                    <p>Giao Hoa Tận Nơi Đảm Bảo Hoa Tươi</p>
+                </div>
+                <div class="col texticon">
+                    <img src="~/Content/HinhAnh/xeday.png" style="width:100px" />
+                    <p>Hoa Giao Đúng Mẫu Đúng Tone Màu</p>
+                </div>
+                <div class="col texticon">
+                    <img src="~/Content/HinhAnh/coupon.png" style="width:100px" />
+                    <p>Nhập Mã "Uudai5" Giảm -5% Đơn Online</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

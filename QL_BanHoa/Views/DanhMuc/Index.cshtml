@@ -1,0 +1,101 @@
+﻿@{
+    var danhMucCha = ViewBag.DanhMucCha as QL_BanHoa.DanhMuc;
+    var danhMucCons = ViewBag.DanhMucCon as List<QL_BanHoa.DanhMuc>;
+    var sanPhams = ViewBag.SanPhams as List<QL_BanHoa.SanPham>;
+
+    ViewBag.Title = danhMucCha?.TENDM ?? "Danh mục";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="~/Content/css/DanhMucCon.css" rel="stylesheet" />
+<div class="container mt-4">
+    <div class="row">
+        <!-- Sidebar: Danh mục con -->
+        <div class="col-md-3">
+            @if (danhMucCons != null && danhMucCons.Count > 0)
+            {
+                <div class="card sidebar-card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">@danhMucCha.TENDM</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush">
+                            @foreach (var dmCon in danhMucCons)
+                            {
+                                <a href="@Url.Action("Index", "DanhMuc", new { id = dmCon.MADM })"
+                                   class="list-group-item list-group-item-action">
+                                    @dmCon.TENDM
+                                    @{
+                                        var count = dmCon.SanPhams.Count(sp => sp.TRANGTHAI == "Còn hàng");
+                                    }
+                                    <span class="badge bg-primary float-end">@count</span>
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Main Content: Sản phẩm -->
+        <div class="col-md-9">
+            <!-- Tiêu đề danh mục -->
+            <div class="category-header mb-4">
+                <h1 class="category-title">@(danhMucCha?.TENDM ?? "Tất cả sản phẩm")</h1>
+                <p class="category-count text-muted">
+                    @(sanPhams?.Count ?? 0) sản phẩm
+                </p>
+            </div>
+
+            <!-- Danh sách sản phẩm -->
+            @if (sanPhams != null && sanPhams.Count > 0)
+            {
+                <div class="row">
+                    @foreach (var sp in sanPhams)
+                    {
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="card product-card h-100">
+                                <a href="@Url.Action("ChiTiet", "Home", new { id = sp.MASP })" class="text-decoration-none">
+                                    <div class="product-image-wrapper">
+                                        <img src="~/Content/hinhanh/@sp.URL_ANH"
+                                             class="card-img-top"
+                                             alt="@sp.TENSP"
+                                             onerror="this.src='/Content/hinhanh/default.jpg'">
+                                        <span class="product-badge">NEW</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <h6 class="product-title">@sp.TENSP</h6>
+                                        <p class="product-description text-muted small">
+                                            @(sp.MOTA?.Length > 100 ? sp.MOTA.Substring(0, 100) + "..." : sp.MOTA)
+                                        </p>
+                                        <div class="product-price">
+                                            @{
+                                                var giaGoc = sp.GIA * 1.2m;
+                                                var phanTramGiam = 20;
+                                            }
+                                            <span class="old-price">@giaGoc.ToString()đ</span>
+                                            <span class="current-price">@sp.GIA.ToString()đ</span>
+                                            <span class="discount-percent">-@phanTramGiam%</span>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <a href="@Url.Action("ThemGioHang", "GioHang", new { MaSP = sp.MASP, url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
+                                            <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                        </a>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    Không có sản phẩm nào trong danh mục này.
+                </div>
+            }
+        </div>
+    </div>
+</div>
+

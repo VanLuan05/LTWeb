@@ -1,0 +1,286 @@
+﻿@model QL_BanHoa.Models.DashboardViewModel
+
+@{
+    ViewBag.Title = "Trang Chủ Admin";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="space-y-8">
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+        <div class="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-indigo-500 hover:shadow-xl transition duration-300">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 uppercase">Tổng Doanh Thu</p>
+                    <h3 class="text-3xl font-extrabold text-gray-900 mt-1">
+                        @string.Format("{0:#,###} đ", Model.TongDoanhThu)
+                    </h3>
+                </div>
+                <div class="text-indigo-500 bg-indigo-50 p-3 rounded-full text-2xl">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+            </div>
+            <p class="text-xs mt-3 text-green-500 font-semibold">Cập nhật liên tục</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-yellow-500 hover:shadow-xl transition duration-300">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 uppercase">Tổng Đơn Hàng</p>
+                    <h3 class="text-3xl font-extrabold text-gray-900 mt-1">
+                        @Model.SoLuongDonHang
+                    </h3>
+                </div>
+                <div class="text-yellow-500 bg-yellow-50 p-3 rounded-full text-2xl">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+            </div>
+            <p class="text-xs mt-3 text-gray-500 font-semibold">Đơn hàng toàn hệ thống</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-green-500 hover:shadow-xl transition duration-300">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 uppercase">Tổng Khách Hàng</p>
+                    <h3 class="text-3xl font-extrabold text-gray-900 mt-1">
+                        @Model.SoLuongKhachHang
+                    </h3>
+                </div>
+                <div class="text-green-500 bg-green-50 p-3 rounded-full text-2xl">
+                    <i class="fas fa-users"></i>
+                </div>
+            </div>
+            <p class="text-xs mt-3 text-gray-500 font-semibold">Khách hàng đã đăng ký</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-red-500 hover:shadow-xl transition duration-300">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 uppercase">Tổng Sản Phẩm</p>
+                    <h3 class="text-3xl font-extrabold text-gray-900 mt-1">
+                        @Model.SoLuongSanPham
+                    </h3>
+                </div>
+                <div class="text-red-500 bg-red-50 p-3 rounded-full text-2xl">
+                    <i class="fas fa-warehouse"></i>
+                </div>
+            </div>
+            <p class="text-xs mt-3 text-red-500 font-semibold">Sản phẩm đang kinh doanh</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-lg">
+            <div class="flex justify-between items-center mb-4">
+                <h4 class="text-xl font-bold text-gray-800">Phân Tích Doanh Thu & Lợi Nhuận (@DateTime.Now.Year)</h4>
+                <select class="border rounded-md px-2 py-1 text-sm text-gray-600 outline-none">
+                    <option>Năm nay</option>
+                    <option>Năm ngoái</option>
+                </select>
+            </div>
+
+            <div class="relative h-80 w-full">
+                <canvas id="myAreaChart"></canvas>
+            </div>
+        </div>
+
+        <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-lg">
+            <h4 class="text-xl font-bold text-gray-800 mb-4">Thông Báo Hệ Thống</h4>
+            <ul class="space-y-4">
+                <li class="flex items-start space-x-3 border-b pb-3">
+                    <div class="text-green-500 pt-1"><i class="fas fa-check-circle"></i></div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-900">Hệ thống vận hành tốt</p>
+                        <p class="text-xs text-gray-500">Dữ liệu đã được đồng bộ hóa lúc @DateTime.Now.ToString("HH:mm")</p>
+                    </div>
+                </li>
+                <li class="flex items-start space-x-3 border-b pb-3">
+                    <div class="text-blue-500 pt-1"><i class="fas fa-info-circle"></i></div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-900">Sao lưu dữ liệu</p>
+                        <p class="text-xs text-gray-500">Đã tự động sao lưu database.</p>
+                    </div>
+                </li>
+                <li class="flex items-start space-x-3">
+                    <div class="text-yellow-500 pt-1"><i class="fas fa-exclamation-triangle"></i></div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-900">Cảnh báo tồn kho</p>
+                        <p class="text-xs text-gray-500">3 sản phẩm sắp hết hàng.</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+    // Lấy dữ liệu từ Model C# chuyển sang Javascript
+    var labels = @Html.Raw(Json.Encode(Model.ChartLabels));
+    var dataDoanhThu = @Html.Raw(Json.Encode(Model.ChartDoanhThu));
+    var dataLoiNhuan = @Html.Raw(Json.Encode(Model.ChartLoiNhuan));
+
+    var ctx = document.getElementById("myAreaChart").getContext('2d');
+
+    // Tạo Gradient màu cho đẹp (Optional)
+    var gradientBlue = ctx.createLinearGradient(0, 0, 0, 400);
+    gradientBlue.addColorStop(0, 'rgba(78, 115, 223, 0.5)'); // Màu xanh đậm nhạt dần
+    gradientBlue.addColorStop(1, 'rgba(78, 115, 223, 0.05)');
+
+    var myChart = new Chart(ctx, {
+        type: 'line', // Dạng biểu đồ đường
+        data: {
+            labels: labels, // ["Tháng 1", "Tháng 2"...]
+            datasets: [
+                {
+                    label: "Doanh Thu (VNĐ)",
+                    data: dataDoanhThu, // Dữ liệu doanh thu
+                    backgroundColor: gradientBlue,
+                    borderColor: "#4e73df", // Màu đường kẻ xanh
+                    pointBackgroundColor: "#4e73df",
+                    pointBorderColor: "#fff",
+                    pointHoverBackgroundColor: "#fff",
+                    pointHoverBorderColor: "#4e73df",
+                    fill: true, // Tô màu bên dưới đường kẻ
+                    tension: 0.4 // Độ cong mềm mại của đường kẻ
+                },
+                {
+                    label: "Lợi Nhuận (VNĐ)",
+                    data: dataLoiNhuan, // Dữ liệu lợi nhuận
+                    backgroundColor: "rgba(28, 200, 138, 0.1)",
+                    borderColor: "#1cc88a", // Màu đường kẻ xanh lá
+                    pointBackgroundColor: "#1cc88a",
+                    pointBorderColor: "#fff",
+                    fill: false,
+                    tension: 0.4,
+                    borderDash: [5, 5] // Nét đứt cho lợi nhuận
+                }
+            ]
+        },
+        options: {
+            maintainAspectRatio: false,
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    callbacks: {
+                        label: function(context) {
+                            var label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                // Format tiền tệ VNĐ trong tooltip
+                                label += new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(context.parsed.y);
+                            }
+                            return label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    ticks: {
+                        callback: function(value, index, values) {
+                            // Rút gọn số hiển thị trục Y (Ví dụ: 1000000 -> 1M)
+                            if(value >= 1000000) return value / 1000000 + 'Tr';
+                            return value;
+                        }
+                    },
+                    grid: {
+                        color: "rgb(234, 236, 244)",
+                        zeroLineColor: "rgb(234, 236, 244)",
+                        drawBorder: false,
+                        borderDash: [2],
+                        zeroLineBorderDash: [2]
+                    }
+                }
+            }
+        }
+    });
+    </script>
+
+    <div class="bg-white p-6 rounded-2xl shadow-lg">
+        <div class="flex justify-between items-center mb-4">
+            <h4 class="text-xl font-bold text-gray-800">Đơn Hàng Mới Nhất</h4>
+            <a href="@Url.Action("DonHang", "Admin")" class="text-sm font-medium text-indigo-600 hover:text-indigo-800">
+                Xem tất cả <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mã Đơn</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Khách Hàng</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tổng Tiền</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng Thái</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thời Gian</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao Tác</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @if (Model.DonHangMoiNhat != null && Model.DonHangMoiNhat.Count > 0)
+                    {
+                        foreach (var item in Model.DonHangMoiNhat)
+                        {
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#@item.MADH</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    @(item.NguoiDung != null ? item.NguoiDung.HOTEN : "Khách vãng lai")
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-bold">
+                                    @string.Format("{0:#,###} đ", item.TONGTIEN)
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    @if (item.TRANG_THAI == "Chưa thanh toán")
+                                    {
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                            @item.TRANG_THAI
+                                        </span>
+                                    }
+                                    else if (item.TRANG_THAI == "Đã giao")
+                                    {
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                            @item.TRANG_THAI
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                            @(item.TRANG_THAI ?? "Chờ xử lý")
+                                        </span>
+                                    }
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    @string.Format("{0:dd/MM/yyyy HH:mm}", item.NGAYDAT)
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <a href="@Url.Action("ChiTiet", "DonHang", new { id = item.MADH })" class="text-indigo-600 hover:text-indigo-900">Chi tiết</a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="px-6 py-4 text-center text-gray-500">Chưa có đơn hàng nào.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,232 @@
+﻿@{
+    ViewBag.Title = "Đăng Ký - Bloom Flower";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .register-container {
+            height: 100vh;
+            width: 100%;
+        }
+
+        /* --- CẬP NHẬT LINK ẢNH MỚI TẠI ĐÂY --- */
+        .bg-image {
+            /* Ảnh hoa nền tối, sang trọng và có chiều sâu */
+            background-image: url('https://images.unsplash.com/photo-1596073419667-9d77d59f033f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80');
+            background-position: center;
+            position: relative;
+            height: 100%;
+        }
+
+        /* Overlay gradient tối để chữ trắng dễ đọc */
+        .bg-overlay {
+            background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.8));
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+        }
+
+        /* --- CỘT PHẢI: FORM ĐĂNG KÝ --- */
+        .register-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            height: 100%;
+            position: relative;
+            overflow-y: auto; /* Cho phép cuộn */
+        }
+
+        .register-wrapper {
+            width: 100%;
+            max-width: 500px;
+            padding: 40px;
+        }
+
+        /* Logo thương hiệu */
+        .brand-logo {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .text-green { color: #036b03; }
+        .text-pink { color: #d13364; }
+
+        /* Style Input */
+        .form-floating > .form-control:focus ~ label,
+        .form-floating > .form-control:not(:placeholder-shown) ~ label {
+            color: #d13364;
+        }
+
+        .form-control:focus {
+            border-color: #d13364;
+            box-shadow: 0 0 0 0.25rem rgba(209, 51, 100, 0.15);
+        }
+
+        /* Nút đăng ký */
+        .btn-register {
+            background: linear-gradient(45deg, #036b03, #025202);
+            border: none;
+            color: white;
+            padding: 12px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+        }
+
+        .btn-register:hover {
+            background: linear-gradient(45deg, #d13364, #a81c4a);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(209, 51, 100, 0.3);
+        }
+
+        .back-home {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            text-decoration: none;
+            color: #666;
+            font-size: 0.9rem;
+            transition: 0.3s;
+            z-index: 10;
+        }
+        .back-home:hover { color: #036b03; }
+
+        /* Responsive */
+        @@media (max-width: 992px) {
+            .bg-image { display: none; }
+            body { overflow: auto; }
+            .register-section { height: auto; min-height: 100vh; padding: 20px 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container-fluid p-0">
+        <div class="row g-0 register-container">
+
+            <div class="col-lg-5 d-none d-lg-block bg-image">
+                <div class="bg-overlay"></div>
+                <div class="position-absolute bottom-0 start-0 p-5 text-white">
+                    <h1 class="display-5 fw-bold">Gia nhập Bloom Flower</h1>
+                    <p class="lead">Tạo tài khoản ngay để nhận ưu đãi đặc biệt và theo dõi đơn hàng dễ dàng hơn.</p>
+                </div>
+            </div>
+
+            <div class="col-lg-7 register-section">
+
+                <a href="@Url.Action("Index", "Home")" class="back-home">
+                    <i class="fas fa-arrow-left me-1"></i> Về trang chủ
+                </a>
+
+                <div class="register-wrapper">
+                    <div class="brand-logo">
+                        <span class="text-green">BLOOM</span> <span class="text-pink">Flower</span>
+                    </div>
+
+                    <h4 class="mb-4 text-center text-secondary">Đăng ký thành viên mới</h4>
+
+                    @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+                    {
+                        <div class="alert alert-danger">
+                            @Html.ValidationSummary(false, "", new { @class = "text-danger m-0" })
+                        </div>
+                    }
+
+                    @using (Html.BeginForm("XuLyFormDK", "DangKy", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="HOTEN" name="HOTEN" placeholder="Họ và tên" required>
+                                    <label for="HOTEN"><i class="fas fa-user me-2 text-muted"></i>Họ và tên</label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="TENDANGNHAP" name="TENDANGNHAP" placeholder="Tên đăng nhập" required>
+                                    <label for="TENDANGNHAP"><i class="fas fa-id-card me-2 text-muted"></i>Tên đăng nhập</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="email" class="form-control" id="EMAIL" name="EMAIL" placeholder="Email" required>
+                                    <label for="EMAIL"><i class="fas fa-envelope me-2 text-muted"></i>Email</label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="password" class="form-control" id="MATKHAU" name="MATKHAU" placeholder="Mật khẩu" required>
+                                    <label for="MATKHAU"><i class="fas fa-lock me-2 text-muted"></i>Mật khẩu</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="SODIENTHOAI" name="SODIENTHOAI" placeholder="Số điện thoại" required>
+                                    <label for="SODIENTHOAI"><i class="fas fa-phone me-2 text-muted"></i>Số điện thoại</label>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="DIACHI" name="DIACHI" placeholder="Địa chỉ giao hàng" required>
+                                    <label for="DIACHI"><i class="fas fa-map-marker-alt me-2 text-muted"></i>Địa chỉ giao hàng</label>
+                                </div>
+                            </div>
+
+                            <div class="col-12 mt-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="dieu_khoan" id="dieu_khoan" required>
+                                    <label class="form-check-label text-muted small" for="dieu_khoan">
+                                        Tôi đồng ý với các <a href="#" class="text-pink text-decoration-none">Điều khoản & Dịch vụ</a> của Bloom Flower.
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="col-12 mt-4">
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-register rounded-pill py-2">
+                                        ĐĂNG KÝ TÀI KHOẢN <i class="fas fa-user-plus ms-2"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="text-center mt-4">
+                        <p class="text-muted">
+                            Đã có tài khoản?
+                            <a href="@Url.Action("Index", "Login")" class="fw-bold text-decoration-none text-green">Đăng nhập ngay</a>
+                        </p>
+                    </div>
+
+                    <div class="text-center mt-3 text-muted small">
+                        &copy; @DateTime.Now.Year Bloom Flower. All rights reserved.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

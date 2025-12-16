@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="28ae528f40e7485394dc7d4eeb8247fe" Name="Diagram1">
+        <EntityTypeShape EntityType="QL_BanHoaModel.ChiTietDonHang" Width="1.5" PointX="8.25" PointY="6" IsExpanded="true" />
+        <EntityTypeShape EntityType="QL_BanHoaModel.DanhGia" Width="1.5" PointX="11.25" PointY="5.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="QL_BanHoaModel.DanhMuc" Width="1.5" PointX="3.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="QL_BanHoaModel.DonHang" Width="1.5" PointX="3" PointY="5" IsExpanded="true" />
+        <EntityTypeShape EntityType="QL_BanHoaModel.GioHang" Width="1.5" PointX="8.25" PointY="2.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="QL_BanHoaModel.KHUYENMAI" Width="1.5" PointX="0.75" PointY="5.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="QL_BanHoaModel.NguoiDung" Width="1.5" PointX="0.75" PointY="1.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="QL_BanHoaModel.SanPham" Width="1.5" PointX="6" PointY="4.875" IsExpanded="true" />
+        <AssociationConnector Association="QL_BanHoaModel.FK__ChiTietDon__MADH__01142BA1" ManuallyRouted="false" />
+        <AssociationConnector Association="QL_BanHoaModel.FK__ChiTietDon__MASP__02084FDA" ManuallyRouted="false" />
+        <AssociationConnector Association="QL_BanHoaModel.FK__DanhGia__MAND__0E6E26BF" ManuallyRouted="false" />
+        <AssociationConnector Association="QL_BanHoaModel.FK__DanhGia__MASP__0F624AF8" ManuallyRouted="false" />
+        <AssociationConnector Association="QL_BanHoaModel.FK__DanhMuc__MADM_CH__6477ECF3" ManuallyRouted="false" />
+        <AssociationConnector Association="QL_BanHoaModel.FK__SanPham__MADM__70DDC3D8" ManuallyRouted="false" />
+        <AssociationConnector Association="QL_BanHoaModel.FK__DonHang__MaKM__7D439ABD" ManuallyRouted="false" />
+        <AssociationConnector Association="QL_BanHoaModel.FK__DonHang__MAND__7C4F7684" ManuallyRouted="false" />
+        <AssociationConnector Association="QL_BanHoaModel.FK__GioHang__MAND__07C12930" ManuallyRouted="false" />
+        <AssociationConnector Association="QL_BanHoaModel.FK__GioHang__MASP__08B54D69" ManuallyRouted="false" />
+        <AssociationConnector Association="QL_BanHoaModel.FK__SanPham__MAKM__71D1E811" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="QL_BanHoaModel.PhanLoaiSanPham" Width="2" PointX="6" PointY="10.875" />
+        <EntityTypeShape EntityType="QL_BanHoaModel.SanPham_PhanLoai" Width="2" PointX="8.25" PointY="9" />
+        <AssociationConnector Association="QL_BanHoaModel.FK__SanPham_P__MAPHA__2739D489" />
+        <AssociationConnector Association="QL_BanHoaModel.FK__SanPham_Ph__MASP__2645B050" />
+        <EntityTypeShape EntityType="QL_BanHoaModel.LienHe" Width="1.5" PointX="10.375" PointY="0.75" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

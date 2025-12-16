@@ -1,0 +1,165 @@
+﻿@model NguoiDung
+@{
+    ViewBag.Title = "Hồ sơ của tôi";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    /* CSS Riêng cho trang Profile */
+    .profile-sidebar .card {
+        border: none;
+        box-shadow: 0 0 15px rgba(0,0,0,0.05);
+    }
+
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, #036b03, #8fd19e);
+        color: white;
+        font-size: 2.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        margin: 0 auto 15px;
+        border: 4px solid white;
+        box-shadow: 0 5px 15px rgba(3, 107, 3, 0.2);
+    }
+
+    .list-group-item {
+        border: none;
+        padding: 12px 20px;
+        color: #555;
+        border-left: 3px solid transparent;
+        transition: all 0.3s;
+    }
+
+        .list-group-item:hover, .list-group-item.active {
+            background-color: #f0f9f0;
+            color: #036b03;
+            border-left-color: #036b03;
+            font-weight: 600;
+        }
+
+        .list-group-item i {
+            width: 25px;
+        }
+
+    .form-control:focus {
+        border-color: #036b03;
+        box-shadow: 0 0 0 0.2rem rgba(3, 107, 3, 0.15);
+    }
+
+    .btn-save {
+        background-color: #036b03;
+        color: white;
+        padding: 10px 30px;
+    }
+
+        .btn-save:hover {
+            background-color: #025202;
+            color: white;
+        }
+</style>
+
+<div class="container my-5">
+    <div class="row">
+
+        <div class="col-md-4 col-lg-3 mb-4">
+            <div class="profile-sidebar">
+                <div class="card text-center py-4 mb-3">
+                    <div class="profile-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h5 class="fw-bold mb-0">@Model.HOTEN</h5>
+                    <p class="text-muted small">Thành viên Bloom Flower</p>
+                </div>
+
+                <div class="list-group shadow-sm">
+                    <a href="@Url.Action("Index", "Profile")" class="list-group-item list-group-item-action active">
+                        <i class="fas fa-user-circle"></i> Hồ sơ cá nhân
+                    </a>
+                    <a href="@Url.Action("Index", "DonHang")" class="list-group-item list-group-item-action">
+                        <i class="fas fa-shopping-bag"></i> Đơn hàng của tôi
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <i class="fas fa-key"></i> Đổi mật khẩu
+                    </a>
+                    <a href="@Url.Action("LogOut", "Login")" class="list-group-item list-group-item-action text-danger">
+                        <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8 col-lg-9">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="mb-0 fw-bold" style="color: #036b03;">
+                        <i class="fas fa-pen me-2"></i> Cập nhật thông tin
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show">
+                            <i class="fas fa-check-circle me-2"></i> @TempData["Success"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i> @TempData["Error"]
+                        </div>
+                    }
+
+                    @using (Html.BeginForm("CapNhatThongTin", "Profile", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.MAND) <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label text-muted small">Tên đăng nhập</label>
+                                <input type="text" class="form-control bg-light" value="@Model.TENDANGNHAP" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted small">Email</label>
+                                <input type="text" class="form-control bg-light" value="@Model.EMAIL" readonly>
+                            </div>
+
+                            <div class="col-12"><hr class="text-muted my-2"></div>
+
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">Họ và tên</label>
+                                @Html.TextBoxFor(m => m.HOTEN, new { @class = "form-control", required = "required" })
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Số điện thoại</label>
+                                @Html.TextBoxFor(m => m.SODIENTHOAI, new { @class = "form-control", required = "required" })
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Ngày tham gia</label>
+                                <input type="text" class="form-control bg-light" value="@DateTime.Now.ToString("dd/MM/yyyy")" readonly>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Địa chỉ nhận hàng mặc định</label>
+                                @Html.TextAreaFor(m => m.DIACHI, new { @class = "form-control", rows = "3" })
+                            </div>
+
+                            <div class="col-12 mt-4 text-end">
+                                <button type="submit" class="btn btn-save rounded-pill">
+                                    <i class="fas fa-save me-2"></i> Lưu thay đổi
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

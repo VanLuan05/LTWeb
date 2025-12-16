@@ -1,0 +1,209 @@
+﻿@model QL_BanHoa.SanPham
+@{
+    ViewBag.Title = "Chi Tiết Sản Phẩm";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container my-3">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="@Url.Action("Index", "Home")">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="@Url.Action("Index", "SanPham")">Sản phẩm</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@Model.TENSP</li>
+        </ol>
+    </nav>
+</div>
+
+<section id="product-detail" class="container my-5">
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="main-image-container mb-3 border rounded shadow-sm">
+                <img src="~/Content/hinhanh/@Model.URL_ANH" class="img-fluid w-100" alt="@Model.TENSP" style="object-fit: contain; max-height: 500px;">
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <h1 class="mb-3" style="color:#036b03;">@Model.TENSP</h1>
+            <p class="text-muted small">Mã SP: @Model.MASP | Tình trạng: <span class="text-success fw-bold">@Model.TRANGTHAI</span></p>
+
+            <div class="price-section mb-4">
+                @if (Model.MAKM != null && Model.KHUYENMAI != null)
+                {
+                    decimal giaGoc = (decimal)Model.GIA;
+                    decimal phanTram = (decimal)Model.KHUYENMAI.PHANTRAMGIAM;
+                    decimal giaGiam = giaGoc - (giaGoc * phanTram / 100);
+
+                    <span class="text-decoration-line-through text-secondary me-2 h4">@string.Format("{0:#,###}", giaGoc)₫</span>
+                    <span class="text-danger h2 fw-bold" style="color: #d13364 !important;">@string.Format("{0:#,###}", giaGiam)₫</span>
+                    <span class="badge bg-danger ms-2">-@phanTram%</span>
+                }
+                else
+                {
+                    <span class="text-danger h2 fw-bold" style="color: #d13364 !important;">@string.Format("{0:#,###}", Model.GIA)₫</span>
+                }
+            </div>
+
+            <p class="lead mb-4" style="font-size: 0.95rem;">@Model.MOTA</p>
+
+            <div class="product-options mb-4">
+                <h5 class="fw-bold">Tùy Chọn Kích Cỡ:</h5>
+                <div class="btn-group mb-3" role="group" aria-label="Kích cỡ">
+                    <input type="radio" class="btn-check" name="size" id="sizeS" autocomplete="off" checked>
+                    <label class="btn btn-outline-secondary" for="sizeS">Bó Nhỏ</label>
+                    <input type="radio" class="btn-check" name="size" id="sizeM" autocomplete="off">
+                    <label class="btn btn-outline-secondary" for="sizeM">Bó Trung</label>
+                    <input type="radio" class="btn-check" name="size" id="sizeL" autocomplete="off">
+                    <label class="btn btn-outline-secondary" for="sizeL">Bó Lớn</label>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Ngày Giao Hàng Dự Kiến:</label>
+                    <input type="date" class="form-control w-50" id="deliveryDate" value="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")">
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center mb-4">
+                <div class="input-group quantity-control me-3" style="width: 140px;">
+                    <button class="btn btn-outline-secondary" type="button" onclick="this.parentNode.querySelector('input[type=number]').stepDown()">-</button>
+                    <input type="number" class="form-control text-center" value="1" min="1" id="quantityInput">
+                    <button class="btn btn-outline-secondary" type="button" onclick="this.parentNode.querySelector('input[type=number]').stepUp()">+</button>
+                </div>
+
+                <a href="@Url.Action("ThemGioHang", "GioHang", new { MaSP = Model.MASP, url = Request.Url.ToString() })" class="btn btn-success fw-bold px-4 py-2">
+                    <i class="fa fa-shopping-cart me-2"></i> THÊM VÀO GIỎ
+                </a>
+            </div>
+
+            <button class="btn btn-lg fw-bold w-100 text-white" style="background-color: #d13364;">
+                MUA NGAY - GIAO NHANH 90 PHÚT
+            </button>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-12">
+            <h4 class="mb-3 pb-2 border-bottom" style="color:#036b03;">CHI TIẾT SẢN PHẨM & DỊCH VỤ</h4>
+            <ul class="nav nav-tabs" id="productTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab">Mô Tả Chi Tiết</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="shipping-tab" data-bs-toggle="tab" data-bs-target="#shipping" type="button" role="tab">Chính Sách Giao Hàng</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="review-tab" data-bs-toggle="tab" data-bs-target="#review" type="button" role="tab">Đánh Giá (0)</button>
+                </li>
+            </ul>
+            <div class="tab-content p-4 border border-top-0 bg-light rounded-bottom">
+                <div class="tab-pane fade show active" id="description" role="tabpanel">
+                    <p>@Model.MOTA</p>
+                    <p><strong>Lưu ý:</strong> Sản phẩm thực tế có thể khác đôi chút so với hình ảnh do đặc tính của hoa tươi và tính chất thủ công.</p>
+                </div>
+                <div class="tab-pane fade" id="shipping" role="tabpanel">
+                    <p><strong>Giao hoa nhanh:</strong> Trong 90-120 phút tại nội thành TP.HCM.</p>
+                    <p><strong>Phí ship:</strong> Miễn phí vận chuyển cho đơn hàng trên 300k tại các quận trung tâm.</p>
+                </div>
+                <div class="tab-pane fade" id="review" role="tabpanel">
+                    <p>Chưa có đánh giá nào cho sản phẩm này.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-12">
+            <h3 class="border-bottom pb-2 mb-4" style="color:#036b03; font-weight:bold;">SẢN PHẨM LIÊN QUAN</h3>
+        </div>
+
+        @if (ViewBag.SanphamLienQuan != null)
+        {
+            foreach (var item in ViewBag.SanphamLienQuan)
+            {
+                <div class="col-md-3 col-sm-6 mb-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="position-relative overflow-hidden" style="height: 250px;">
+                            <a href="@Url.Action("ChiTiet", "Home", new { id = item.MASP })">
+                                <img src="~/Content/hinhanh/@item.URL_ANH" class="card-img-top w-100 h-100" alt="@item.TENSP" style="object-fit: cover;">
+                            </a>
+
+                            @if (item.MAKM != null && item.KHUYENMAI != null)
+                            {
+                                <span class="position-absolute top-0 start-0 bg-danger text-white px-2 py-1 m-2 rounded small">
+                                    -@item.KHUYENMAI.PHANTRAMGIAM%
+                                </span>
+                            }
+                        </div>
+
+                        <div class="card-body text-center d-flex flex-column">
+                            <h6 class="card-title mb-2">
+                                <a href="@Url.Action("ChiTiet", "Home", new { id = item.MASP })" class="text-decoration-none text-dark fw-bold text-truncate d-block">
+                                    @item.TENSP
+                                </a>
+                            </h6>
+
+                            <div class="mt-auto">
+                                @if (item.MAKM != null && item.KHUYENMAI != null)
+                                {
+                                    decimal giaGoc = (decimal)item.GIA;
+                                    decimal phanTram = (decimal)item.KHUYENMAI.PHANTRAMGIAM;
+                                    decimal giaGiam = giaGoc - (giaGoc * phanTram / 100);
+
+                                    <span class="text-muted text-decoration-line-through small me-2">@string.Format("{0:#,###}", giaGoc)đ</span>
+                                    <span class="text-danger fw-bold">@string.Format("{0:#,###}", giaGiam)đ</span>
+                                }
+                                else
+                                {
+                                    <span class="text-danger fw-bold">@string.Format("{0:#,###}", item.GIA)đ</span>
+                                }
+                            </div>
+
+                            <div class="mt-3">
+                                <a href="@Url.Action("ThemGioHang", "GioHang", new { MaSP = item.MASP, url = Request.Url.ToString() })" class="btn btn-sm btn-success btn-sm w-100">
+                                    Thêm vào giỏ
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-center py-4">
+                <p class="text-muted">Chưa có sản phẩm liên quan nào.</p>
+            </div>
+        }
+    </div>
+</section>
+
+<div class="khungmh" style="margin-top:50px; background-color: #f8f9fa; padding: 30px 0;">
+    <div class="container">
+        <h3 class="mb-4" style="color:#036b03; text-align:center"><b>Shop Hoa Tươi Online Phục Vụ:</b></h3>
+        <div class="row text-center g-4">
+            <div class="col-md-4 col-lg-2">
+                <img src="~/Content/HinhAnh/clock.png" style="width:60px; height:60px; object-fit:contain;" class="mb-2" />
+                <p class="small fw-bold">Giao Nhanh 2H</p>
+            </div>
+            <div class="col-md-4 col-lg-2">
+                <img src="~/Content/HinhAnh/freeship.png" style="width:60px; height:60px; object-fit:contain;" class="mb-2" />
+                <p class="small fw-bold">Free Ship >300k</p>
+            </div>
+            <div class="col-md-4 col-lg-2">
+                <img src="~/Content/HinhAnh/free.png" style="width:60px; height:60px; object-fit:contain;" class="mb-2" />
+                <p class="small fw-bold">Miễn Phí Thiệp</p>
+            </div>
+            <div class="col-md-4 col-lg-2">
+                <img src="~/Content/HinhAnh/ship.png" style="width:60px; height:60px; object-fit:contain;" class="mb-2" />
+                <p class="small fw-bold">Giao Tận Nơi</p>
+            </div>
+            <div class="col-md-4 col-lg-2">
+                <img src="~/Content/HinhAnh/xeday.png" style="width:60px; height:60px; object-fit:contain;" class="mb-2" />
+                <p class="small fw-bold">Cam Kết Đúng Mẫu</p>
+            </div>
+            <div class="col-md-4 col-lg-2">
+                <img src="~/Content/HinhAnh/coupon.png" style="width:60px; height:60px; object-fit:contain;" class="mb-2" />
+                <p class="small fw-bold">Ưu Đãi Mỗi Ngày</p>
+            </div>
+        </div>
+    </div>
+</div>

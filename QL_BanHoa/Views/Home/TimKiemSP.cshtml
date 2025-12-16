@@ -1,0 +1,79 @@
+﻿@model List<SanPham>
+@{
+    ViewBag.Title = "Kết quả tìm kiếm";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container my-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="@Url.Action("Index", "Home")">Trang chủ</a></li>
+            <li class="breadcrumb-item active">Kết quả tìm kiếm</li>
+        </ol>
+    </nav>
+
+    <!-- Kết quả tìm kiếm -->
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4" style="color: #036b03;">
+                Kết Quả Tìm Kiếm: "<span class="text-danger">@ViewBag.Keyword</span>"
+            </h2>
+
+            <p class="text-muted mb-4">
+                Tìm thấy <strong>@ViewBag.SoLuongTimThay</strong> sản phẩm phù hợp
+            </p>
+
+            @if (Model != null && Model.Any())
+            {
+                <div class="row g-4">
+                    @foreach (var item in Model)
+                    {
+                        <div class="col-lg-3 col-md-4 col-sm-6">
+                            <div class="card h-100 shadow-sm">
+                                <div class="position-relative">
+                                    <img src="~/Content/hinhanh/@item.URL_ANH" class="card-img-top" alt="@item.TENSP" style="height: 250px; object-fit: cover;">
+                                    <div class="position-absolute top-0 end-0 m-2">
+                                        <span class="badge bg-success">@item.TRANGTHAI</span>
+                                    </div>
+                                </div>
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title" style="color: #036b03;">@item.TENSP</h5>
+                                    <p class="card-text text-muted small flex-grow-1">
+                                        @(item.MOTA.Length > 100 ? item.MOTA.Substring(0, 100) + "..." : item.MOTA)
+                                    </p>
+                                    <div class="mt-auto">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="h5 text-danger mb-0">@String.Format("{0:N0}₫", item.GIA)</span>
+                                            <div class="mt-2">
+                                                <a href="@Url.Action("ThemGioHang", "GioHang", new { MaSP = item.MASP, url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
+                                                    <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <div class="mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="#ccc" class="bi bi-search" viewBox="0 0 16 16">
+                            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+                        </svg>
+                    </div>
+                    <h4 class="text-muted">Không tìm thấy sản phẩm phù hợp</h4>
+                    <p class="text-muted">Xin vui lòng thử lại với từ khóa khác</p>
+                    <a href="@Url.Action("Index", "Home")" class="btn" style="background-color: #036b03; color: white;">
+                        Quay lại trang chủ
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+
+</div>

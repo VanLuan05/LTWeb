@@ -1,0 +1,61 @@
+﻿﻿@model QL_BanHoa.DanhMuc
+
+@{
+    ViewBag.Title = "Cập Nhật Danh Mục";
+    ViewBag.PageTitle = "Cập Nhật Danh Mục";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-md">
+    <div class="flex justify-between items-center mb-6">
+        <h3 class="text-xl font-semibold text-gray-800">Cập Nhật Danh Mục: <span class="text-indigo-600">#@Model.MADM</span></h3>
+        <a href="@Url.Action("CategoryManager", "Admin")" class="text-gray-500 hover:text-gray-700">
+            <i class="fas fa-arrow-left"></i> Quay lại
+        </a>
+    </div>
+
+    @using (Html.BeginForm("EditCategory", "Admin", FormMethod.Post))
+    {
+        @* Input ẩn chứa ID *@
+        <input type="hidden" name="MADM" value="@Model.MADM" />
+
+        <div class="space-y-6">
+            @* Tên danh mục *@
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Tên Danh Mục <span class="text-red-500">*</span></label>
+                <input type="text" name="TENDM" value="@Model.TENDM" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+
+            @* Danh mục cha *@
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Danh Mục Cha</label>
+                <select name="MADM_CHA" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="">-- Danh mục gốc --</option>
+                    @if (ViewBag.DanhSachDanhMuc != null)
+                    {
+                        foreach (var dm in ViewBag.DanhSachDanhMuc)
+                        {
+                            <option value="@dm.MADM" @(Model.MADM_CHA == dm.MADM ? "selected" : "")>@dm.TENDM</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            @* Trạng thái *@
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Trạng Thái</label>
+                <select name="TRANGTHAI" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="Hiển thị" @(Model.TRANGTHAI == "Hiển thị" ? "selected" : "")>Hiển thị</option>
+                    <option value="Tạm ẩn" @(Model.TRANGTHAI == "Tạm ẩn" ? "selected" : "")>Tạm ẩn</option>
+                </select>
+            </div>
+
+            @* Nút Save *@
+            <div class="flex justify-end pt-4 border-t border-gray-200">
+                <button type="submit" class="px-6 py-2 bg-indigo-600 text-white font-medium rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all">
+                    <i class="fas fa-save mr-2"></i> Lưu Thay Đổi
+                </button>
+            </div>
+        </div>
+    }
+</div>

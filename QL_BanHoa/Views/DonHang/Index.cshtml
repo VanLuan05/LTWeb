@@ -1,0 +1,117 @@
+﻿@model List<DonHang>
+
+@{
+    ViewBag.Title = "Lịch sử đơn hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    /* CSS cho nút Xem chi tiết */
+    .btn-outline-success {
+        background-color: white !important;
+        color: #036b03 !important;
+        border: 1px solid #036b03 !important;
+        border-radius: 7px !important;
+    }
+
+        .btn-outline-success:hover {
+            background-color: #036b03 !important;
+            color: white !important;
+        }
+
+    /* CSS cho nút Hủy */
+    .btn-outline-danger {
+        border-radius: 7px !important;
+    }
+</style>
+
+<div class="container my-5">
+    <h3 class="text-center mb-4" style="color:#036b03">ĐƠN HÀNG CỦA TÔI</h3>
+
+    @if (TempData["ThongBao"] != null)
+    {
+        <div class="alert alert-success">@TempData["ThongBao"]</div>
+    }
+    @if (TempData["Loi"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Loi"]</div>
+    }
+
+    @if (Model == null || Model.Count == 0)
+    {
+        <div class="alert alert-info text-center">
+            Bạn chưa có đơn hàng nào. <a href="@Url.Action("Index", "SanPham")" class="fw-bold text-decoration-none">Mua sắm ngay!</a>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive shadow-sm rounded border">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light text-success">
+                    <tr>
+                        <th class="py-3 ps-3">Mã ĐH</th>
+                        <th>Ngày đặt</th>
+                        <th>Trạng thái</th>
+                        <th>Tổng tiền</th>
+                        <th class="text-center">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="ps-3 fw-bold">#@item.MADH</td>
+                            <td>@string.Format("{0:dd/MM/yyyy}", item.NGAYDAT)</td>
+
+                            <td>
+                                @if (item.TRANG_THAI == "Đã giao")
+                                {
+                                    <span class="badge bg-success">Hoàn thành</span>
+                                }
+                                else if (item.TRANG_THAI == "Đã hủy")
+                                {
+                                    <span class="badge bg-danger">Đã hủy</span>
+                                }
+                                else if (item.TRANG_THAI == "Đang vận chuyển")
+                                {
+                                    <span class="badge bg-info text-dark">Đang giao</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">Đang xử lý</span>
+                                }
+                            </td>
+
+                            <td class="fw-bold text-danger">
+                                @{
+                                    decimal tongtien = 0;
+                                    if (item.ChiTietDonHangs != null)
+                                    {
+                                        tongtien = (decimal)item.ChiTietDonHangs.Sum(ct => ct.SOLUONG * ct.THANHTIEN);
+                                    }
+                                }
+                                @string.Format("{0:#,###}", tongtien) đ
+                            </td>
+
+                            <td class="text-center">
+                                <a href="@Url.Action("ChiTiet", "DonHang", new { id = item.MADH })" class="btn btn-sm btn-outline-success me-1" title="Xem chi tiết">
+                                    <i class="fas fa-eye"></i> Xem
+                                </a>
+
+                                @if (item.TRANG_THAI == "Đang xử lý")
+                                {
+                                    <a href="@Url.Action("HuyDonHang", "DonHang", new { id = item.MADH })"
+                                       class="btn btn-sm btn-outline-danger"
+                                       onclick="return confirm('Bạn có chắc chắn muốn hủy đơn hàng #@item.MADH không?');"
+                                       title="Hủy đơn hàng">
+                                        <i class="fas fa-times"></i> Hủy
+                                    </a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

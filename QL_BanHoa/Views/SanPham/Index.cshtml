@@ -1,0 +1,46 @@
+﻿@model List<SanPham>
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="khungmh">
+    <div class="khung1mh">
+        <div class="khungmh">
+            <div class="titlemh"><b>BỘ SƯU TẬP HOA NHÀ BLOOM</b></div>
+        </div>
+        <div class="linemh"></div>
+
+        <div class="khungmh">
+            <div class="product-box3mh">
+                <!---->
+                @foreach (var item in Model)
+                {
+                    <div class="box3mh">
+                        <a href="@Url.Action("ChiTiet", "Home", new { id = item.MASP })" style="text-decoration:none">
+                            <div class="covermh-img">
+                                <img src="~/Content/hinhanh/@item.URL_ANH" />
+                                <span class="tagmh">-15%</span>
+                                <span class="icon-cart"><i class="bi bi-bag-plus"></i></span>
+                            </div>
+                            <div class="cover-tensp">
+                                <div class="tensp">@item.TENSP</div>
+                                <div style="color:black">
+                                    <span class="textmhgach">800.000</span>
+                                    <span class="h5 text-danger mb-0">@String.Format("{0:N0}₫", item.GIA)</span>
+                                </div>
+                                <div class="mt-2">
+                                    <a href="@Url.Action("ThemGioHang", "GioHang", new { MaSP = item.MASP, url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
+                                        <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                    </a>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                }
+
+            </div>
+            </div>
+        </div>
+    </div>
+

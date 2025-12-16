@@ -1,0 +1,213 @@
+﻿@{
+    ViewBag.Title = "Đăng Nhập - Bloom Flower";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .login-container {
+            height: 100vh;
+            width: 100%;
+        }
+
+        /* --- CẬP NHẬT PHẦN BACKGROUND Ở ĐÂY --- */
+        .bg-image {
+            /* Link ảnh hoa Dark Moody (Nền tối sang trọng) */
+            background-image: url('https://images.unsplash.com/photo-1596073419667-9d77d59f033f?q=80&w=2135&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            height: 100%;
+        }
+
+        /* Lớp phủ gradient tối dần xuống dưới để chữ trắng nổi bật */
+        .bg-overlay {
+            background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.8));
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+        }
+
+        .login-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            height: 100%;
+            position: relative;
+        }
+
+        .login-wrapper {
+            width: 100%;
+            max-width: 450px;
+            padding: 40px;
+        }
+
+        /* Logo thương hiệu */
+        .brand-logo {
+            font-size: 2rem;
+            margin-bottom: 30px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .text-green { color: #036b03; }
+        .text-pink { color: #d13364; }
+
+        /* Input đẹp hơn */
+        .form-floating > .form-control:focus ~ label,
+        .form-floating > .form-control:not(:placeholder-shown) ~ label {
+            color: #d13364;
+        }
+
+        .form-control:focus {
+            border-color: #d13364;
+            box-shadow: 0 0 0 0.25rem rgba(209, 51, 100, 0.15);
+        }
+
+        /* Nút đăng nhập */
+        .btn-login {
+            background: linear-gradient(45deg, #036b03, #025202);
+            border: none;
+            color: white;
+            padding: 12px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+        }
+
+        .btn-login:hover {
+            background: linear-gradient(45deg, #d13364, #a81c4a);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(209, 51, 100, 0.3);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 20px 0;
+            color: #aaa;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #ddd;
+        }
+        .divider span { padding: 0 10px; font-size: 0.9rem; }
+
+        .back-home {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            text-decoration: none;
+            color: #666;
+            font-size: 0.9rem;
+            transition: 0.3s;
+            z-index: 10;
+        }
+        .back-home:hover { color: #036b03; }
+
+        @@media (max-width: 768px) {
+            .bg-image { display: none; }
+            body { overflow: auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container-fluid p-0">
+        <div class="row g-0 login-container">
+
+            <div class="col-md-7 col-lg-8 bg-image">
+                <div class="bg-overlay"></div>
+                <div class="position-absolute bottom-0 start-0 p-5 text-white">
+                    <h1 class="display-4 fw-bold">Chào mừng trở lại!</h1>
+                    <p class="lead">Hãy đăng nhập để khám phá thế giới hoa tươi tuyệt đẹp cùng Bloom Flower.</p>
+                </div>
+            </div>
+
+            <div class="col-md-5 col-lg-4 login-section">
+
+                <a href="@Url.Action("Index", "Home")" class="back-home">
+                    <i class="fas fa-arrow-left me-1"></i> Về trang chủ
+                </a>
+
+                <div class="login-wrapper">
+                    <div class="brand-logo">
+                        <span class="text-green">BLOOM</span> <span class="text-pink">Flower</span>
+                    </div>
+
+                    <h4 class="mb-4 text-center text-secondary">Đăng nhập tài khoản</h4>
+
+                    @if (!string.IsNullOrEmpty(ViewBag.Error))
+                    {
+                        <div class="alert alert-danger d-flex align-items-center" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <div>@ViewBag.Error</div>
+                        </div>
+                    }
+
+                    @using (Html.BeginForm("XuLyFormDN", "Login", new { duongdan = ViewBag.url }, FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="email" name="email" placeholder="Tên đăng nhập/Email" required value="@ViewBag.Email">
+                            <label for="email"><i class="fas fa-user me-2 text-muted"></i>Tên đăng nhập hoặc Email</label>
+                        </div>
+
+                        <div class="form-floating mb-4">
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Mật khẩu" required>
+                            <label for="password"><i class="fas fa-lock me-2 text-muted"></i>Mật khẩu</label>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="rememberMe">
+                                <label class="form-check-label text-muted small" for="rememberMe">Ghi nhớ tôi</label>
+                            </div>
+                            <a href="#" class="text-decoration-none small text-pink hover-underline">Quên mật khẩu?</a>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-login rounded-pill">
+                                ĐĂNG NHẬP <i class="fas fa-sign-in-alt ms-2"></i>
+                            </button>
+                        </div>
+                    }
+
+                    <div class="divider">
+                        <span>hoặc</span>
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <p class="text-muted">
+                            Chưa có tài khoản?
+                            <a href="@Url.Action("Index", "DangKy")" class="fw-bold text-decoration-none text-green">Đăng ký ngay</a>
+                        </p>
+                    </div>
+
+                    <div class="text-center mt-5 text-muted small">
+                        &copy; @DateTime.Now.Year Bloom Flower. All rights reserved.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

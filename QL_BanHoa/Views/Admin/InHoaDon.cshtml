@@ -1,0 +1,128 @@
+﻿@model QL_BanHoa.DonHang
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Hóa đơn #@Model.MADH</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        /* CSS riêng cho PDF */
+        body {
+            font-family: 'Times New Roman', serif;
+            font-size: 14px;
+        }
+
+        .header-title {
+            color: #d13364;
+            font-weight: bold;
+            font-size: 24px;
+        }
+
+        .table thead th {
+            background-color: #f2f2f2;
+            border-bottom: 2px solid #000;
+        }
+
+        .total-row {
+            font-size: 18px;
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-style: italic;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body style="background: #fff; padding: 20px;">
+
+    <table style="width: 100%; margin-bottom: 30px;">
+        <tr>
+            <td style="width: 50%; vertical-align: top;">
+                <div class="header-title">BLOOM FLOWER</div>
+                <div>140 Lê Trọng Tấn, P. Tây Thạnh, TP.HCM</div>
+                <div>Hotline: 0999.111.222</div>
+                <div>Website: www.bloomflower.com</div>
+            </td>
+            <td style="width: 50%; text-align: right; vertical-align: top;">
+                <h2 style="font-weight: bold;">HÓA ĐƠN BÁN HÀNG</h2>
+                <div>Mã đơn: <strong>#@Model.MADH</strong></div>
+                <div>Ngày: @string.Format("{0:dd/MM/yyyy}", Model.NGAYDAT)</div>
+            </td>
+        </tr>
+    </table>
+
+    <div style="margin-bottom: 20px; border: 1px solid #ddd; padding: 15px;">
+        <table style="width: 100%;">
+            <tr>
+                <td style="width: 50%; vertical-align: top;">
+                    <strong>KHÁCH HÀNG:</strong><br />
+                    Tên: @(Model.NguoiDung != null ? Model.NguoiDung.HOTEN : "Khách vãng lai")<br />
+                    SĐT: @(Model.NguoiDung != null ? Model.NguoiDung.SODIENTHOAI : "---")<br />
+                    Email: @(Model.NguoiDung != null ? Model.NguoiDung.EMAIL : "---")
+                </td>
+                <td style="width: 50%; vertical-align: top;">
+                    <strong>GIAO ĐẾN:</strong><br />
+                    Địa chỉ: @(Model.DIACHIGIAOHANG ?? Model.NguoiDung.DIACHI)<br />
+                    Ghi chú: @(Model.GHI_CHU ?? "Không có")
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th class="text-center">STT</th>
+                <th>Tên Sản Phẩm</th>
+                <th class="text-right">Đơn Giá</th>
+                <th class="text-center">SL</th>
+                <th class="text-right">Thành Tiền</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{ int i = 1; }
+            @foreach (var item in Model.ChiTietDonHangs)
+            {
+                <tr>
+                    <td class="text-center">@(i++)</td>
+                    <td>@item.SanPham.TENSP</td>
+                    <td class="text-right">@string.Format("{0:#,###}", item.THANHTIEN)</td>
+                    <td class="text-center">@item.SOLUONG</td>
+                    <td class="text-right">@string.Format("{0:#,###}", item.THANHTIEN)</td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="4" class="text-right font-weight-bold">TỔNG CỘNG THANH TOÁN:</td>
+                <td class="text-right total-row">@string.Format("{0:#,###} đ", Model.TONGTIEN)</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <table style="width: 100%; margin-top: 50px;">
+        <tr>
+            <td style="width: 50%; text-align: center;">
+                <strong>Người mua hàng</strong><br />
+                (Ký, ghi rõ họ tên)
+            </td>
+            <td style="width: 50%; text-align: center;">
+                <strong>Người bán hàng</strong><br />
+                (Ký, ghi rõ họ tên)
+            </td>
+        </tr>
+    </table>
+
+    <div class="footer">
+        Cảm ơn quý khách đã mua hàng tại Bloom Flower! Hẹn gặp lại.
+    </div>
+</body>
+</html>
