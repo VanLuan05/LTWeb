@@ -1,19 +1,23 @@
-﻿using QL_BanHoa.Models;
+﻿using Newtonsoft.Json;
+using QL_BanHoa.Models;
+using Rotativa;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
-using Rotativa;
 namespace QL_BanHoa.Controllers
 {
     public class AdminController : Controller
     {
 
         QL_BanHoaEntities db = new QL_BanHoaEntities();
+        string baseAddress = "https://localhost:44305/api/";
+
         public ActionResult Index()
         {
            
@@ -114,49 +118,80 @@ namespace QL_BanHoa.Controllers
 
             return View(danhSachKetQua);
         }
-       
-        public ActionResult CategoryManager(/*int? trang, string tuKhoa*/)
+
+        public ActionResult CategoryManager(int? trang, string tuKhoa, int? maDanhMucCha)
         {
-            // Code hiển thị danh mục cũ
-            //int kichThuocTrang = 20;
-            //int trangHienTai = (trang ?? 1);
+            List<DanhMuc> danhSachHienThi = new List<DanhMuc>();
+            int trangHienTai = trang ?? 1;
+            int kichThuocTrang = 20;
 
-            //// Lấy nguồn dữ liệu, sắp xếp theo ID
-            //var truyVan = db.DanhMucs.AsQueryable();
+            // Khởi tạo HttpClient để gọi API
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(baseAddress);
 
-            //// Xử lý tìm kiếm (nếu có)
-            //if (!string.IsNullOrEmpty(tuKhoa))
-            //{
-            //    truyVan = truyVan.Where(dm => dm.TENDM.Contains(tuKhoa));
-            //}
+                // Gọi API GetAll để lấy danh sách danh mục cha
+                var resAll = client.GetAsync("DanhMucAPI/GetAllDanhMucs").Result;
+                if (resAll.IsSuccessStatusCode)
+                {
+                    var jsonAll = resAll.Content.ReadAsStringAsync().Result;
+                    var allList = JsonConvert.DeserializeObject<List<DanhMuc>>(jsonAll);
+                    // Lưu vào ViewBag để View hiển thị dropdown
+                    ViewBag.DanhSachDanhMuc = allList.Where(x => x.MADM_CHA == null).ToList();
+                }
 
-            //truyVan = truyVan.OrderBy(x => x.MADM);
+                // Chuẩn bị tham số gửi đi (trang và từ khóa)
+                // URL sẽ là: api/DanhMucAPI/GetDanhMucs?trang=1&tuKhoa=hoa
+                string apiPath = $"DanhMucAPI/GetDanhMucs?trang={trangHienTai}&tuKhoa={tuKhoa}";
 
-            //int tongSoBanGhi = truyVan.Count();
-            //int tongSoTrang = (int)Math.Ceiling((double)tongSoBanGhi / kichThuocTrang);
+                if (maDanhMucCha.HasValue)
+                {
+                    apiPath += $"&maDanhMucCha={maDanhMucCha}";
+                }
 
-            //if (trangHienTai > tongSoTrang && tongSoTrang > 0)
-            //{
-            //    trangHienTai = tongSoTrang;
-            //}
+                try
+                {
+                    // Gọi API (GET) -> Chờ kết quả (.Result)
+                    var response = client.GetAsync(apiPath).Result;
 
-            //// Lấy dữ liệu
-            //var danhSachDanhMuc = truyVan.Skip((trangHienTai - 1) * kichThuocTrang).Take(kichThuocTrang).ToList();
+                    // Nếu thành công (Code 200)
+                    if (response.IsSuccessStatusCode)
+                    {
+                        // Đọc nội dung JSON trả về
+                        var jsonString = response.Content.ReadAsStringAsync().Result;
 
-            //// Gửi dữ liệu qua View
-            //ViewBag.TongSoBanGhi = tongSoBanGhi;
-            //ViewBag.TongSoTrang = tongSoTrang;
-            //ViewBag.TrangHienTai = trangHienTai;
-            //ViewBag.KichThuocTrang = kichThuocTrang;
-            //ViewBag.TuKhoaHienTai = tuKhoa;
+                        // Chuyển JSON thành đối tượng C#
+                        dynamic dataApi = JsonConvert.DeserializeObject(jsonString);
 
-            //// Tạo Dictionary để tra cứu tên danh mục cha
-            //// Với key là ID, value là tên
-            //ViewBag.TraCuuDanhMuc = db.DanhMucs.ToDictionary(x => x.MADM, x => x.TENDM);
+                        // Lấy danh sách danh mục từ biến "Data" của API
+                        danhSachHienThi = dataApi.Data.ToObject<List<DanhMuc>>();
 
-            //return View(danhSachDanhMuc);
+                        // Lấy thông tin phân trang
+                        ViewBag.TongSoBanGhi = (int)dataApi.Total;
+                        ViewBag.TongSoTrang = (int)dataApi.TotalPages;
+                        ViewBag.TrangHienTai = (int)dataApi.CurrentPage;
+                    }
+                }
+                catch (Exception)
+                {
+                    // Nếu lỗi kết nối API thì danh sách sẽ rỗng
+                    ModelState.AddModelError("", "Không thể kết nối đến API.");
+                }
+            }
 
-            ViewBag.Title = "Quản Lý Danh Mục";
+            // Các ViewBag hỗ trợ hiển thị
+            ViewBag.KichThuocTrang = kichThuocTrang;
+            ViewBag.TuKhoaHienTai = tuKhoa;
+
+            ViewBag.MaDanhMucChaHienTai = maDanhMucCha;
+            // Dictionary để hiển thị tên danh mục cha
+            ViewBag.TraCuuDanhMuc = db.DanhMucs.ToDictionary(x => x.MADM, x => x.TENDM);
+
+            return View(danhSachHienThi);
+        }
+
+        public ActionResult MoneyMoney()
+        {
             return View();
         }
 
@@ -362,39 +397,72 @@ namespace QL_BanHoa.Controllers
         [HttpGet]
         public ActionResult AddCategory()
         {
-            // Lấy danh sách danh mục để chọn làm danh mục cha
-            // Ví dụ: thêm danh mục "Hoa hồng đỏ" thì danh mục cha phải là "Hoa hồng"
-            //ViewBag.DanhSachDanhMuc = db.DanhMucs.ToList();
+            List<DanhMuc> danhSachDanhMuc = new List<DanhMuc>();
+
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(baseAddress);
+
+                // Gọi API lấy toàn bộ danh mục để đổ vào dropdown Danh mục cha
+                var response = client.GetAsync("DanhMucAPI/GetAllDanhMucs").Result;
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var jsonString = response.Content.ReadAsStringAsync().Result;
+                    danhSachDanhMuc = JsonConvert.DeserializeObject<List<DanhMuc>>(jsonString);
+                }
+            }
+
+            ViewBag.DanhSachDanhMuc = danhSachDanhMuc;
             return View();
         }
+        [HttpPost]
+        public ActionResult AddCategory(DanhMuc danhMuc)
+        {
+            // Kiểm tra sơ bộ
+            if (string.IsNullOrEmpty(danhMuc.TENDM))
+            {
+                ModelState.AddModelError("", "Tên danh mục không được để trống.");
+            }
 
-        //[HttpPost]
-        //public ActionResult AddCategory(DanhMuc danhMuc)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        if (string.IsNullOrEmpty(danhMuc.TENDM))
-        //        {
-        //            ModelState.AddModelError("", "Tên danh mục không được để trống");
-        //        }
-        //        else
-        //        {
-        //            // Gán trạng thái mặc định nếu null
-        //            if (string.IsNullOrEmpty(danhMuc.TRANGTHAI))
-        //            {
-        //                danhMuc.TRANGTHAI = "Hiển thị";
-        //            }
+            if (ModelState.IsValid)
+            {
+                using (var client = new HttpClient())
+                {
+                    client.BaseAddress = new Uri(baseAddress);
 
-        //            db.DanhMucs.Add(danhMuc);
-        //            db.SaveChanges();
-        //            return RedirectToAction("CategoryManager");
-        //        }
-        //    }
+                    // Gửi dữ liệu object DanhMuc lên API
+                    // PostAsJsonAsync tự động chuyển object thành JSON gửi đi
+                    var response = client.PostAsJsonAsync("DanhMucAPI/ThemDanhMuc", danhMuc).Result;
 
-        //    // Nếu lỗi, load lại danh sách danh mục cha và trả về View
-        //    ViewBag.DanhSachDanhMuc = db.DanhMucs.ToList();
-        //    return View(danhMuc);
-        //}
+                    if (response.IsSuccessStatusCode)
+                    {
+                        TempData["ThongBao"] = "Thêm danh mục thành công!";
+                        return RedirectToAction("CategoryManager");
+                    }
+                    else
+                    {
+                        // Đọc lỗi từ API trả về
+                        var jsonError = response.Content.ReadAsStringAsync().Result;
+                        ModelState.AddModelError("", "Lỗi API: " + jsonError);
+                    }
+                }
+            }
+
+            // Nếu thất bại: Gọi lại API lấy danh sách cha để đổ lại vào dropdown vì ViewBag bị mất khi reload
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(baseAddress);
+                var response = client.GetAsync("DanhMucAPI/GetAllDanhMucs").Result;
+                if (response.IsSuccessStatusCode)
+                {
+                    var jsonString = response.Content.ReadAsStringAsync().Result;
+                    ViewBag.DanhSachDanhMuc = JsonConvert.DeserializeObject<List<DanhMuc>>(jsonString);
+                }
+            }
+
+            return View(danhMuc);
+        }
 
         [HttpGet]
         public ActionResult EditCategory(int id)
@@ -437,45 +505,36 @@ namespace QL_BanHoa.Controllers
         [HttpPost]
         public ActionResult DeleteCategory(int id)
         {
-            var danhMuc = db.DanhMucs.Find(id);
-            if (danhMuc != null)
+            using (var client = new HttpClient())
             {
-                // Kiểm tra xem có sản phẩm nào đang thuộc danh mục này không
-                bool coSanPham = db.SanPhams.Any(x => x.MADM == id);
+                client.BaseAddress = new Uri(baseAddress);
 
-                // Kiểm tra xem danh mục này có phải là cha của danh mục khác không
-                bool coDanhMucCon = db.DanhMucs.Any(x => x.MADM_CHA == id);
+                // Gọi API DELETE: api/DanhMucAPI/XoaDanhMuc/5
+                var response = client.DeleteAsync($"DanhMucAPI/XoaDanhMuc/{id}").Result;
 
-                if (coSanPham)
+                if (response.IsSuccessStatusCode)
                 {
-                    TempData["Loi"] = "Không thể xóa! Danh mục #" + id + " đang chứa sản phẩm.";
-                }
-                else if (coDanhMucCon)
-                {
-                    TempData["Loi"] = "Không thể xóa! Danh mục #" + id + " đang là cha của danh mục khác.";
+                    // thành công
+                    TempData["ThongBao"] = $"Xóa danh mục #{id} thành công!";
                 }
                 else
                 {
-                    // Nếu ok thì mới xóa
+                    // thất bại
+                    var json = response.Content.ReadAsStringAsync().Result;
                     try
                     {
-                        db.DanhMucs.Remove(danhMuc);
-                        db.SaveChanges();
-                        TempData["ThongBao"] = "Xóa danh mục #" + id + " thành công!";
+                        dynamic error = JsonConvert.DeserializeObject(json);
+                        TempData["Loi"] = $"Không thể xóa danh mục #{id}. Lý do: {error.Message}";
                     }
-                    catch (Exception)
+                    catch
                     {
-                        TempData["Loi"] = "Có lỗi hệ thống khi xóa danh mục.";
+                        TempData["Loi"] = $"Không thể xóa danh mục #{id} (Lỗi kết nối API).";
                     }
                 }
             }
-            else
-            {
-                TempData["Loi"] = "Không tìm thấy danh mục cần xóa.";
-            }
-
             return RedirectToAction("CategoryManager");
         }
+
 
         //Xóa nhiều danh mục cùng lúc
         [HttpPost]
@@ -487,52 +546,64 @@ namespace QL_BanHoa.Controllers
                 return RedirectToAction("CategoryManager");
             }
 
-            var danhSachDaXoa = new List<int>(); // ID xóa thành công
-            var danhSachLoi = new List<int>();   // ID bị lỗi ràng buộc
-
-            foreach (var id in ids)
+            using (var client = new HttpClient())
             {
-                var danhMuc = db.DanhMucs.Find(id);
-                if (danhMuc != null)
-                {
-                    // kiểm tra ràng buộc
-                    bool coSanPham = db.SanPhams.Any(x => x.MADM == id);
-                    bool coDanhMucCon = db.DanhMucs.Any(x => x.MADM_CHA == id);
+                client.BaseAddress = new Uri(baseAddress);
 
-                    if (coSanPham || coDanhMucCon)
+                // Gọi API POST: api/DanhMucAPI/XoaNhieuDanhMuc
+                var response = client.PostAsJsonAsync("DanhMucAPI/XoaNhieuDanhMuc", ids).Result;
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = response.Content.ReadAsStringAsync().Result;
+                    dynamic result = JsonConvert.DeserializeObject(json);
+
+                    int deletedCount = (int)result.DeletedCount;
+                    int errorCount = (int)result.ErrorCount;
+
+                    // Lấy danh sách ID xóa thành công và thất bại
+                    List<int> listDeleted = result.DeletedIds.ToObject<List<int>>();
+                    List<int> listError = result.ErrorIds.ToObject<List<int>>();
+
+                    string msg = "";
+
+                    // Xử lý thông báo thành công
+                    if (deletedCount > 0)
                     {
-                        // Nếu dính ràng buộc, vd danh mục đang xóa là cha của danh mục khác, hoặc các lỗi về FK
-                        // thì đưa vào ds lỗi
-                        danhSachLoi.Add(id);
+                        string strDeletedIds = string.Join(", ", listDeleted.Select(i => "#" + i));
+                        msg = $"Đã xóa thành công {deletedCount} danh mục ({strDeletedIds}).";
                     }
                     else
                     {
-                        // Nếu ok hết thì xóa
-                        try
-                        {
-                            db.DanhMucs.Remove(danhMuc);
-                            db.SaveChanges();
-                            danhSachDaXoa.Add(id);
-                        }
-                        catch (Exception)
-                        {
-                            danhSachLoi.Add(id);
-                        }
+                        msg = "Xóa không thành công.";
+                    }
+
+                    // Xử lý thông báo lỗi (nếu có)
+                    if (errorCount > 0)
+                    {
+                        string strErrorIds = string.Join(", ", listError.Select(i => "#" + i));
+                        // Thêm dấu chấm ngắt câu nếu phía trước có nội dung
+                        if (deletedCount > 0) msg += " ";
+
+                        msg += $"Không thể xóa {errorCount} mục ({strErrorIds}) do có danh mục con hoặc chứa sản phẩm.";
+                    }
+
+                    // Xử lý màu sắc
+                    if (errorCount > 0 && deletedCount == 0)
+                    {
+                        TempData["Loi"] = msg;
+                    }
+                    else
+                    {
+                        // Các trường hợp còn lại (thành công hết hoặc thành công 1 phần) thì xanh
+                        TempData["ThongBao"] = msg;
                     }
                 }
+                else
+                {
+                    TempData["Loi"] = "Lỗi kết nối API khi xóa nhiều.";
+                }
             }
-
-            // Thông báo
-            if (danhSachDaXoa.Count > 0)
-            {
-                TempData["ThongBao"] = $"Đã xóa thành công {danhSachDaXoa.Count} danh mục (ID: {string.Join(", ", danhSachDaXoa.Select(id => "#" + id))}).";
-            }
-
-            if (danhSachLoi.Count > 0)
-            {
-                TempData["Loi"] = $"Không thể xóa {danhSachLoi.Count} danh mục do đang chứa sản phẩm hoặc danh mục con (ID: {string.Join(", ", danhSachLoi.Select(id => "#" + id))}).";
-            }
-
             return RedirectToAction("CategoryManager");
         }
         // 1. HIỂN THỊ DANH SÁCH ĐƠN HÀNG

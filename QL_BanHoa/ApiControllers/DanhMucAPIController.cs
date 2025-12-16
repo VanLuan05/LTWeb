@@ -16,10 +16,11 @@ namespace QL_BanHoa.ApiControllers
     {
         private QL_BanHoaEntities db = new QL_BanHoaEntities();
 
+        // API hiển thị danh sách danh mục
         // GET: api/DanhMucAPI
         [HttpGet]
         [Route("api/DanhMucAPI/GetDanhMucs")]
-        public IHttpActionResult GetDanhMucs(int trang = 1, string tuKhoa = "")
+        public IHttpActionResult GetDanhMucs(int trang = 1, string tuKhoa = "", int? maDanhMucCha = null)
         {
             int kichThuocTrang = 20;
 
@@ -30,7 +31,12 @@ namespace QL_BanHoa.ApiControllers
             {
                 truyVan = truyVan.Where(dm => dm.TENDM.Contains(tuKhoa));
             }
-
+            //Xử lý lọc theo cha
+            if (maDanhMucCha.HasValue)
+            {
+                truyVan = truyVan.Where(dm => dm.MADM_CHA == maDanhMucCha);
+            }
+            //Sắp xếp
             truyVan = truyVan.OrderBy(x => x.MADM);
 
             // Tính toán phân trang
@@ -73,7 +79,15 @@ namespace QL_BanHoa.ApiControllers
                 return NotFound();
             }
 
-            return Ok(danhMuc);
+            var ketQua = new
+            {
+                danhMuc.MADM,
+                danhMuc.TENDM,
+                danhMuc.MADM_CHA,
+                danhMuc.TRANGTHAI
+            };
+
+            return Ok(ketQua);
         }
 
         // API Lấy toàn bộ danh mục, dùng cho dropdown
@@ -83,9 +97,8 @@ namespace QL_BanHoa.ApiControllers
         public IHttpActionResult GetAllDanhMucs()
         {
             // Chỉ lấy ID và Tên để dữ liệu nhẹ, response nhanh
-            var list = db.DanhMucs
-                .Select(x => new { x.MADM, x.TENDM })
-                .ToList();
+            // SỬA: Lấy thêm MADM_CHA để phục vụ việc lọc danh mục gốc bên Controller
+            var list = db.DanhMucs.Select(x => new { x.MADM, x.TENDM, x.MADM_CHA }).ToList();
             return Ok(list);
         }
 
@@ -127,84 +140,192 @@ namespace QL_BanHoa.ApiControllers
             }
         }
 
-        // PUT: api/DanhMucAPI/5
-        [ResponseType(typeof(void))]
-        public IHttpActionResult PutDanhMuc(int id, DanhMuc danhMuc)
+        // API Cập nhật danh mục
+        // URL: /api/DanhMucAPI/CapNhatDanhMuc/5
+        [HttpPut]
+        [Route("api/DanhMucAPI/CapNhatDanhMuc/{id}")]
+        public IHttpActionResult CapNhatDanhMuc(int id, DanhMuc danhMuc)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            if (id != danhMuc.MADM)
-            {
-                return BadRequest();
-            }
+            if (id != danhMuc.MADM) return BadRequest("ID không khớp");
 
+            // Đánh dấu đối tượng là đã sửa đổi
             db.Entry(danhMuc).State = System.Data.Entity.EntityState.Modified;
 
             try
             {
                 db.SaveChanges();
+                return Ok(new { Success = true, Message = "Cập nhật thành công!" });
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                if (!DanhMucExists(id))
+                return InternalServerError(ex);
+            }
+        }
+
+        // API Xóa 1 danh mục có kiểm tra ràng buộc
+        // URL: /api/DanhMucAPI/XoaDanhMuc/5
+        [HttpDelete]
+        [Route("api/DanhMucAPI/XoaDanhMuc/{id}")]
+        public IHttpActionResult XoaDanhMuc(int id)
+        {
+            var danhMuc = db.DanhMucs.Find(id);
+            if (danhMuc == null) return NotFound();
+
+            // KIỂM TRA RÀNG BUỘC (Logic giống MVC)
+            bool coSanPham = db.SanPhams.Any(x => x.MADM == id);
+            bool coDanhMucCon = db.DanhMucs.Any(x => x.MADM_CHA == id);
+
+            if (coSanPham)
+            {
+                return Content(HttpStatusCode.BadRequest, new { Message = $"Không thể xóa! Danh mục #{id} đang chứa sản phẩm." });
+            }
+            if (coDanhMucCon)
+            {
+                return Content(HttpStatusCode.BadRequest, new { Message = $"Không thể xóa! Danh mục #{id} là cha của danh mục khác." });
+            }
+
+            try
+            {
+                db.DanhMucs.Remove(danhMuc);
+                db.SaveChanges();
+                return Ok(new { Success = true, Message = "Xóa thành công!" });
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        // API Xóa nhiều danh mục
+        // URL: /api/DanhMucAPI/XoaNhieuDanhMuc
+        [HttpPost]
+        [Route("api/DanhMucAPI/XoaNhieuDanhMuc")]
+        public IHttpActionResult XoaNhieuDanhMuc(List<int> ids)
+        {
+            if (ids == null || ids.Count == 0) return BadRequest("Chưa chọn danh mục nào.");
+
+            var danhSachDaXoa = new List<int>();
+            var danhSachLoi = new List<int>();
+
+            foreach (var id in ids)
+            {
+                var danhMuc = db.DanhMucs.Find(id);
+                if (danhMuc != null)
                 {
-                    return NotFound();
+                    bool coSanPham = db.SanPhams.Any(x => x.MADM == id);
+                    bool coDanhMucCon = db.DanhMucs.Any(x => x.MADM_CHA == id);
+
+                    if (coSanPham || coDanhMucCon)
+                    {
+                        danhSachLoi.Add(id);
+                    }
+                    else
+                    {
+                        try
+                        {
+                            db.DanhMucs.Remove(danhMuc);
+                            db.SaveChanges();
+                            danhSachDaXoa.Add(id);
+                        }
+                        catch
+                        {
+                            danhSachLoi.Add(id);
+                        }
+                    }
                 }
-                else
-                {
-                    throw;
-                }
             }
 
-            return StatusCode(HttpStatusCode.NoContent);
-        }
-
-        // POST: api/DanhMucAPI
-        [ResponseType(typeof(DanhMuc))]
-        public IHttpActionResult PostDanhMuc(DanhMuc danhMuc)
-        {
-            if (!ModelState.IsValid)
+            // Trả về kết quả tổng hợp
+            return Ok(new
             {
-                return BadRequest(ModelState);
-            }
-
-            db.DanhMucs.Add(danhMuc);
-            db.SaveChanges();
-
-            return CreatedAtRoute("DefaultApi", new { id = danhMuc.MADM }, danhMuc);
+                Success = true,
+                DeletedCount = danhSachDaXoa.Count,
+                ErrorCount = danhSachLoi.Count,
+                DeletedIds = danhSachDaXoa,
+                ErrorIds = danhSachLoi
+            });
         }
 
-        // DELETE: api/DanhMucAPI/5
-        [ResponseType(typeof(DanhMuc))]
-        public IHttpActionResult DeleteDanhMuc(int id)
-        {
-            DanhMuc danhMuc = db.DanhMucs.Find(id);
-            if (danhMuc == null)
-            {
-                return NotFound();
-            }
+        //// PUT: api/DanhMucAPI/5
+        //[ResponseType(typeof(void))]
+        //public IHttpActionResult PutDanhMuc(int id, DanhMuc danhMuc)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
 
-            db.DanhMucs.Remove(danhMuc);
-            db.SaveChanges();
+        //    if (id != danhMuc.MADM)
+        //    {
+        //        return BadRequest();
+        //    }
 
-            return Ok(danhMuc);
-        }
+        //    db.Entry(danhMuc).State = System.Data.Entity.EntityState.Modified;
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
-        }
+        //    try
+        //    {
+        //        db.SaveChanges();
+        //    }
+        //    catch (DbUpdateConcurrencyException)
+        //    {
+        //        if (!DanhMucExists(id))
+        //        {
+        //            return NotFound();
+        //        }
+        //        else
+        //        {
+        //            throw;
+        //        }
+        //    }
 
-        private bool DanhMucExists(int id)
-        {
-            return db.DanhMucs.Count(e => e.MADM == id) > 0;
-        }
+        //    return StatusCode(HttpStatusCode.NoContent);
+        //}
+
+        //// POST: api/DanhMucAPI
+        //[ResponseType(typeof(DanhMuc))]
+        //public IHttpActionResult PostDanhMuc(DanhMuc danhMuc)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
+
+        //    db.DanhMucs.Add(danhMuc);
+        //    db.SaveChanges();
+
+        //    return CreatedAtRoute("DefaultApi", new { id = danhMuc.MADM }, danhMuc);
+        //}
+
+        //// DELETE: api/DanhMucAPI/5
+        //[ResponseType(typeof(DanhMuc))]
+        //public IHttpActionResult DeleteDanhMuc(int id)
+        //{
+        //    DanhMuc danhMuc = db.DanhMucs.Find(id);
+        //    if (danhMuc == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    db.DanhMucs.Remove(danhMuc);
+        //    db.SaveChanges();
+
+        //    return Ok(danhMuc);
+        //}
+
+        //protected override void Dispose(bool disposing)
+        //{
+        //    if (disposing)
+        //    {
+        //        db.Dispose();
+        //    }
+        //    base.Dispose(disposing);
+        //}
+
+        //private bool DanhMucExists(int id)
+        //{
+        //    return db.DanhMucs.Count(e => e.MADM == id) > 0;
+        //}
     }
 }
