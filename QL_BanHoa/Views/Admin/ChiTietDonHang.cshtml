@@ -1,149 +1,484 @@
 ﻿@model QL_BanHoa.DonHang
-
 @{
-   
     ViewBag.PageTitle = "Chi tiết đơn hàng #" + Model.MADH;
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 
-<div class="container-fluid mb-5">
+<!-- Custom CSS -->
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --success-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --danger-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --warning-gradient: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+    }
 
-    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
-        <div>
-            <p class="text-muted small mb-0">Ngày đặt: @string.Format("{0:dd/MM/yyyy HH:mm}", Model.NGAYDAT)</p>
+    .card-gradient {
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .card-gradient:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+        }
+
+    .card-header-gradient {
+        background: var(--primary-gradient);
+        color: white;
+        border-bottom: none;
+        padding: 1.5rem 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .card-header-gradient::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+    .card-gradient:hover .card-header-gradient::before {
+        transform: translateX(100%);
+    }
+
+    /* Status Badges */
+    .status-badge {
+        padding: 0.5rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .status-processing {
+        background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+        color: #333;
+    }
+
+    .status-shipping {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+    }
+
+    .status-delivered {
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        color: white;
+    }
+
+    .status-cancelled {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+    }
+
+    /* Product Card */
+    .product-card {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid #eef2f7;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+    }
+
+        .product-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+    /* Timeline */
+    .timeline {
+        position: relative;
+        padding-left: 2rem;
+    }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, #667eea, #764ba2);
+        }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 2rem;
+    }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2.4rem;
+            top: 0.5rem;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            background: #667eea;
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+    /* Custom Form Controls */
+    .form-select-custom {
+        border: none;
+        background: linear-gradient(135deg, #667eea15, #764ba215);
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+        .form-select-custom:focus {
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+            background: linear-gradient(135deg, #667eea25, #764ba225);
+        }
+
+    /* Button Styles */
+    .btn-gradient {
+        background: var(--primary-gradient);
+        border: none;
+        color: white;
+        padding: 0.75rem 2rem;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+
+    /* Statistics Cards */
+    .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        border: 1px solid #f0f4f8;
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    /* Order Summary */
+    .order-summary {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border-radius: 15px;
+        padding: 2rem;
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .card-header-gradient {
+            padding: 1.25rem 1.5rem;
+        }
+
+        .product-card {
+            padding: 1rem;
+        }
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <!-- Header with Stats -->
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <div class="d-flex align-items-center mb-3">
+                <div class="me-3">
+                    <div class="bg-gradient-primary rounded-circle p-3">
+                        <i class="fas fa-receipt fa-2x text-white"></i>
+                    </div>
+                </div>
+                <div>
+                    
+                    <p class="text-muted mb-0">
+                        <i class="far fa-calendar-alt me-1"></i>
+                        Ngày đặt: @string.Format("{0:dd/MM/yyyy HH:mm}", Model.NGAYDAT)
+                    </p>
+                </div>
+            </div>
         </div>
-        <div>
-            <a href="@Url.Action("InHoaDon", "Admin", new { id = Model.MADH })" target="_blank" class="btn btn-primary btn-sm shadow-sm me-2">
-                <i class="fa fa-print"></i> In Hóa Đơn
-            </a>
-            <a href="@Url.Action("DonHang", "Admin")" class="btn btn-secondary btn-sm shadow-sm">
-                <i class="fa fa-arrow-left"></i> Quay lại
-            </a>
-        </div>
+        
     </div>
 
-    <div class="card shadow mb-4">
-        <div class="card-body">
-            <div class="row">
-                <div class="col-lg-4 col-md-12 border-end mb-3 mb-lg-0">
-                    <h6 class="text-primary font-weight-bold text-uppercase mb-3">
-                        <i class="fa fa-user me-2"></i>Thông tin người nhận
-                    </h6>
-                    <div class="ps-3">
-                        <p class="mb-2"><strong>Họ tên:</strong> @(Model.NguoiDung != null ? Model.NguoiDung.HOTEN : "Khách vãng lai")</p>
-                        <p class="mb-2"><strong>SĐT:</strong> @(Model.NguoiDung != null ? Model.NguoiDung.SODIENTHOAI : "---")</p>
-                        <p class="mb-2"><strong>Địa chỉ:</strong> @(Model.DIACHIGIAOHANG ?? Model.NguoiDung.DIACHI)</p>
+    <!-- Action Buttons -->
+    <div class="d-flex justify-content-end gap-3 mb-4">
+        <a href="@Url.Action("InHoaDon", "Admin", new { id = Model.MADH })"
+           target="_blank"
+           class="btn btn-gradient">
+            <i class="fas fa-print me-2"></i>In Hóa Đơn
+        </a>
+        <a href="@Url.Action("DonHang", "Admin")"
+           class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Quay lại
+        </a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="row g-4">
+        <!-- Left Column: Customer & Products -->
+        <div class="col-lg-8">
+            <!-- Customer Information -->
+            <div class="card-gradient mb-4">
+                <div class="card-header-gradient">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-user-circle fa-2x me-3"></i>
+                        <h5 class="mb-0 fw-bold">Thông tin khách hàng</h5>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small text-muted text-uppercase fw-bold mb-2">Họ tên</label>
+                            <div class="fw-bold fs-5 text-dark">@(Model.NguoiDung?.HOTEN ?? "Khách vãng lai")</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small text-muted text-uppercase fw-bold mb-2">Số điện thoại</label>
+                            <div class="fw-bold text-dark">@(Model.NguoiDung?.SODIENTHOAI ?? "---")</div>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label class="form-label small text-muted text-uppercase fw-bold mb-2">Địa chỉ giao hàng</label>
+                            <div class="text-dark">
+                                <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                                @(Model.DIACHIGIAOHANG ?? Model.NguoiDung?.DIACHI)
+                            </div>
+                        </div>
                         @if (!string.IsNullOrEmpty(Model.GHI_CHU))
                         {
-                            <div class="alert alert-warning p-2 small mt-2">
-                                <i class="fa fa-sticky-note me-1"></i> <strong>Ghi chú:</strong> @Model.GHI_CHU
+                            <div class="col-12">
+                                <label class="form-label small text-muted text-uppercase fw-bold mb-2">
+                                    <i class="fas fa-sticky-note me-1"></i>Ghi chú
+                                </label>
+                                <div class="alert alert-light border-start-4 border-start-warning p-3">
+                                    @Model.GHI_CHU
+                                </div>
                             </div>
                         }
                     </div>
                 </div>
+            </div>
 
-                <div class="col-lg-4 col-md-12 border-end mb-3 mb-lg-0">
-                    <h6 class="text-info font-weight-bold text-uppercase mb-3">
-                        <i class="fa fa-info-circle me-2"></i>Thông tin đơn hàng
-                    </h6>
-                    <div class="ps-3">
-                        <p class="mb-2"><strong>Mã đơn:</strong> #@Model.MADH</p>
-                        <p class="mb-2"><strong>Thanh toán:</strong> @(Model.PHUONGTHUCTHANHTOAN ?? "COD")</p>
-                        <div class="d-flex align-items-center mb-2">
-                            <strong class="me-2">Trạng thái:</strong>
-                            @if (Model.TRANG_THAI == "Đang xử lý")
-                            {<span class="badge bg-warning text-dark">Đang xử lý</span> }
-                            else if (Model.TRANG_THAI == "Đang giao")
-                            { <span class="badge bg-info text-white">Đang giao</span> }
-                            else if (Model.TRANG_THAI == "Đã giao")
-                            { <span class="badge bg-success">Đã giao</span> }
-                            else if (Model.TRANG_THAI == "Đã hủy")
-                            { <span class="badge bg-danger">Đã hủy</span> }
-                            else
-                            { <span class="badge bg-secondary">@Model.TRANG_THAI</span>}
+            <!-- Products List -->
+            <div class="card-gradient">
+                <div class="card-header-gradient" style="background: var(--success-gradient);">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-boxes fa-2x me-3"></i>
+                        <h5 class="mb-0 fw-bold">Sản phẩm đã đặt</h5>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    @foreach (var item in Model.ChiTietDonHangs)
+                    {
+                        var thanhTien = item.SOLUONG * item.THANHTIEN;
+
+                        <div class="product-card">
+                            <div class="row align-items-center">
+                                <div class="col-md-2">
+                                    <div class="product-image rounded-lg overflow-hidden" style="width: 80px; height: 80px;">
+                                        <img src="~/Content/hinhanh/@item.SanPham.URL_ANH"
+                                             alt="@item.SanPham.TENSP"
+                                             class="img-fluid w-100 h-100 object-fit-cover">
+                                    </div>
+                                </div>
+                                <div class="col-md-5">
+                                    <h6 class="fw-bold mb-1">@item.SanPham.TENSP</h6>
+                                    <small class="text-muted">Mã SP: #@item.MASP</small>
+                                </div>
+                                <div class="col-md-2 text-center">
+                                    <div class="fw-bold text-primary">@string.Format("{0:#,##0}", item.THANHTIEN) đ</div>
+                                    <small class="text-muted">Đơn giá</small>
+                                </div>
+                                <div class="col-md-1 text-center">
+                                    <span class="badge bg-light text-dark px-3 py-2">x @item.SOLUONG</span>
+                                </div>
+                                <div class="col-md-2 text-end">
+                                    <div class="fw-bold fs-5 text-gradient-primary">
+                                        @string.Format("{0:#,##0}", thanhTien) đ
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Order Summary -->
+                    <div class="order-summary mt-4">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="text-muted">Tổng số lượng:</div>
+                                <div class="text-muted">Tổng tiền hàng:</div>
+                            </div>
+                            <div class="col-6 text-end">
+                                <div class="fw-bold">@Model.ChiTietDonHangs.Sum(x => x.SOLUONG)</div>
+                                <div class="fw-bold">@string.Format("{0:#,##0}", Model.TONGTIEN) đ</div>
+                            </div>
+                        </div>
+                        <hr class="my-3">
+                        <div class="row">
+                            <div class="col-6">
+                                <h5 class="fw-bold mb-0">TỔNG THANH TOÁN</h5>
+                            </div>
+                            <div class="col-6 text-end">
+                                <h3 class="fw-bold text-gradient-primary mb-0">
+                                    @string.Format("{0:#,##0}", Model.TONGTIEN) đ
+                                </h3>
+                            </div>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <div class="col-lg-4 col-md-12 bg-light rounded p-3">
-                    <h6 class="text-danger font-weight-bold text-uppercase mb-3">
-                        <i class="fa fa-cog me-2"></i>Cập nhật trạng thái
-                    </h6>
-                    @using (Html.BeginForm("CapNhatTrangThai", "Admin", FormMethod.Post))
+        <!-- Right Column: Order Status & Timeline -->
+        <div class="col-lg-4">
+            <!-- Order Status -->
+            <div class="card-gradient mb-4">
+                <div class="card-header-gradient" style="background: var(--info-gradient);">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-info-circle fa-2x me-3"></i>
+                        <h5 class="mb-0 fw-bold">Trạng thái đơn hàng</h5>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        @{
+                            string statusClass = "";
+                            string statusIcon = "";
+
+                            switch (Model.TRANG_THAI)
+                            {
+                                case "Đang xử lý":
+                                    statusClass = "status-processing";
+                                    statusIcon = "⏳";
+                                    break;
+                                case "Đang giao":
+                                    statusClass = "status-shipping";
+                                    statusIcon = "🚚";
+                                    break;
+                                case "Đã giao":
+                                    statusClass = "status-delivered";
+                                    statusIcon = "✅";
+                                    break;
+                                case "Đã hủy":
+                                    statusClass = "status-cancelled";
+                                    statusIcon = "❌";
+                                    break;
+                                default:
+                                    statusClass = "status-processing";
+                                    statusIcon = "📋";
+                                    break;
+                            }
+                        }
+                        <div class="@statusClass status-badge mb-3">
+                            <span class="fs-5">@statusIcon</span>
+                            <span>@Model.TRANG_THAI</span>
+                        </div>
+                        <div class="text-muted small">
+                            <i class="fas fa-credit-card me-1"></i>
+                            Phương thức: @(Model.PHUONGTHUCTHANHTOAN ?? "COD")
+                        </div>
+                    </div>
+
+                    <!-- Update Status Form -->
+                    @using (Html.BeginForm("CapNhatTrangThai", "Admin", FormMethod.Post, new { @class = "mt-4" }))
                     {
+                        @Html.AntiForgeryToken()
                         <input type="hidden" name="id" value="@Model.MADH" />
 
                         <div class="mb-3">
-                            <select name="trangThai" class="form-select form-control border-left-danger" style="height: 45px;">
-                                <option value="Đang xử lý" @(Model.TRANG_THAI == "Đang xử lý" ? "selected" : "")>⏳ Đang xử lý</option>
-                                <option value="Đang giao" @(Model.TRANG_THAI == "Đang giao" ? "selected" : "")>🚚 Đang giao hàng</option>
-                                <option value="Đã giao" @(Model.TRANG_THAI == "Đã giao" ? "selected" : "")>✅ Đã giao thành công</option>
-                                <option value="Đã hủy" @(Model.TRANG_THAI == "Đã hủy" ? "selected" : "")>❌ Hủy đơn hàng</option>
+                            <label class="form-label fw-bold mb-3">
+                                <i class="fas fa-sync-alt me-2"></i>Cập nhật trạng thái
+                            </label>
+                            <select name="trangThai" class="form-select form-select-custom" required>
+                                <option value="Đang xử lý" @(Model.TRANG_THAI == "Đang xử lý" ? "selected" : "")>
+                                    ⏳ Đang xử lý
+                                </option>
+                                <option value="Đang giao" @(Model.TRANG_THAI == "Đang giao" ? "selected" : "")>
+                                    🚚 Đang giao hàng
+                                </option>
+                                <option value="Đã giao" @(Model.TRANG_THAI == "Đã giao" ? "selected" : "")>
+                                    ✅ Đã giao thành công
+                                </option>
+                                <option value="Đã hủy" @(Model.TRANG_THAI == "Đã hủy" ? "selected" : "")>
+                                    ❌ Hủy đơn hàng
+                                </option>
                             </select>
                         </div>
-                        <button type="submit" class="btn btn-danger btn-block w-100 font-weight-bold py-2">
-                            <i class="fa fa-save me-2"></i> CẬP NHẬT NGAY
+
+                        <button type="submit" class="btn btn-gradient w-100">
+                            <i class="fas fa-save me-2"></i>CẬP NHẬT NGAY
                         </button>
                     }
                 </div>
             </div>
-        </div>
-    </div>
 
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Danh sách sản phẩm</h6>
-        </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover align-middle mb-0">
-                    <thead class="bg-light text-center">
-                        <tr>
-                            <th style="width: 45%;">Sản phẩm</th>
-                            <th style="width: 15%;">Đơn giá</th>
-                            <th style="width: 10%;">SL</th>
-                            <th style="width: 30%;">Thành tiền</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @{ decimal tongCong = 0; }
-                        @foreach (var item in Model.ChiTietDonHangs)
-                        {
-                            decimal thanhTien = (decimal)(item.SOLUONG * item.THANHTIEN);
-                            tongCong += thanhTien;
-
-                            <tr>
-                                <td class="p-3">
-                                    <div class="d-flex align-items-center">
-                                        <div class="me-3 flex-shrink-0" style="width: 60px; height: 60px;">
-                                            <img src="~/Content/hinhanh/@item.SanPham.URL_ANH" class="img-fluid rounded border" style="width: 100%; height: 100%; object-fit: cover;">
-                                        </div>
-                                        <div>
-                                            <div class="font-weight-bold text-dark">@item.SanPham.TENSP</div>
-                                            <small class="text-muted">Mã SP: #@item.MASP</small>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="text-center font-weight-bold">@string.Format("{0:#,###}", item.THANHTIEN)</td>
-                                <td class="text-center">
-                                    <span class="badge badge-light border text-dark p-2">x @item.SOLUONG</span>
-                                </td>
-                                <td class="text-center font-weight-bold text-primary fs-5">
-                                    @string.Format("{0:#,###} đ", thanhTien)
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                    <tfoot class="bg-light">
-                        <tr>
-                            <td colspan="3" class="text-right font-weight-bold text-uppercase p-3">Tổng thanh toán:</td>
-                            <td class="text-center font-weight-bold text-danger fs-4 p-3">
-                                @string.Format("{0:#,###} đ", Model.TONGTIEN)
-                            </td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
+           
         </div>
     </div>
 </div>
+
+<!-- JavaScript for Interactive Elements -->
+<script>
+    // Add gradient text effect
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add gradient text to elements
+        const gradientTexts = document.querySelectorAll('.text-gradient-primary');
+        gradientTexts.forEach(el => {
+            el.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            el.style.webkitBackgroundClip = 'text';
+            el.style.webkitTextFillColor = 'transparent';
+            el.style.backgroundClip = 'text';
+        });
+
+        // Add hover effect to product cards
+        const productCards = document.querySelectorAll('.product-card');
+        productCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px)';
+            });
+
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+
+        // Form validation
+        const updateForm = document.querySelector('form');
+        if (updateForm) {
+            updateForm.addEventListener('submit', function(e) {
+                const select = this.querySelector('select[name="trangThai"]');
+                if (!select.value) {
+                    e.preventDefault();
+                    select.classList.add('is-invalid');
+                    select.focus();
+                }
+            });
+        }
+    });
+</script>
