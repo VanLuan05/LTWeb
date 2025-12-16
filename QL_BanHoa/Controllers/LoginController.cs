@@ -27,7 +27,30 @@ namespace QL_BanHoa.Controllers
             string pass = f["password"];
             var user = ql.NguoiDungs.SingleOrDefault(k => k.EMAIL == useroremail || k.TENDANGNHAP == useroremail);
 
-            if (user != null && Crypto.VerifyHashedPassword(user.MATKHAU, pass))
+            // Xử lý xác thực mật khẩu với try-catch để tránh lỗi Base-64 format
+            bool isPasswordValid = false;
+            if (user != null)
+            {
+                try
+                {
+                    // Thử xác thực với mật khẩu đã được hash
+                    isPasswordValid = Crypto.VerifyHashedPassword(user.MATKHAU, pass);
+                }
+                catch (FormatException)
+                {
+                    // Nếu mật khẩu trong DB chưa được hash (dữ liệu cũ), so sánh trực tiếp
+                    // Sau đó cập nhật sang dạng hash
+                    if (user.MATKHAU == pass)
+                    {
+                        isPasswordValid = true;
+                        // Tự động hash mật khẩu cũ và cập nhật vào database
+                        user.MATKHAU = Crypto.HashPassword(pass);
+                        ql.SaveChanges();
+                    }
+                }
+            }
+
+            if (user != null && isPasswordValid)
             {
                 FormsAuthentication.SetAuthCookie(user.TENDANGNHAP, true);
 

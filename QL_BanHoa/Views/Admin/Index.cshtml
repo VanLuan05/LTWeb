@@ -268,7 +268,7 @@
                                     @string.Format("{0:dd/MM/yyyy HH:mm}", item.NGAYDAT)
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <a href="@Url.Action("ChiTiet", "DonHang", new { id = item.MADH })" class="text-indigo-600 hover:text-indigo-900">Chi tiết</a>
+                                    <a href="@Url.Action("ChiTietDonHang", "Admin", new { id = item.MADH })" class="text-indigo-600 hover:text-indigo-900">Chi tiết</a>
                                 </td>
                             </tr>
                         }
