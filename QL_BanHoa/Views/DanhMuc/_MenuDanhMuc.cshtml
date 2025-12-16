@@ -18,14 +18,15 @@
                     <div class="dropdown-submenu">
                         @foreach (var dmCon in danhMuc.DanhMuc1.Where(d => d.TRANGTHAI == "Hiển thị").OrderBy(d => d.TENDM))
                         {
-                            <a href="@Url.Action("Index", "DanhMuc", new { id = dmCon.MADM })" class="submenu-item">
-                                @dmCon.TENDM
-                                @{
-                                    var count = dmCon.SanPhams.Count(sp => sp.TRANGTHAI == "Còn hàng");
-                                }
+                            // 1. Tính toán số lượng trước khi vẽ thẻ a
+                            var count = dmCon.SanPhams.Count(sp => sp.TRANGTHAI == "Còn hàng");
+
+                            <a href="@Url.Action("Index", "DanhMuc", new { id = dmCon.MADM })" class="submenu-item" style="display: flex; justify-content: space-between; align-items: center;">
+                                <span>@dmCon.TENDM</span>
+
                                 @if (count > 0)
                                 {
-                                    <span class="product-count">(@count)</span>
+                                    <span class="product-count" style="margin-left: 5px;">(@count)</span>
                                 }
                             </a>
                         }

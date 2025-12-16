@@ -371,3 +371,5 @@ select * from NGUOIDUNG
 select * from GIOHANG 
 select * from CHITIETDONHANG 
 
+delete danhmuc
+where madm = 68

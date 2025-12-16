@@ -114,11 +114,53 @@ namespace QL_BanHoa.Controllers
 
             return View(danhSachKetQua);
         }
-        public ActionResult CategoryManager()
+       
+        public ActionResult CategoryManager(/*int? trang, string tuKhoa*/)
         {
+            // Code hiển thị danh mục cũ
+            //int kichThuocTrang = 20;
+            //int trangHienTai = (trang ?? 1);
+
+            //// Lấy nguồn dữ liệu, sắp xếp theo ID
+            //var truyVan = db.DanhMucs.AsQueryable();
+
+            //// Xử lý tìm kiếm (nếu có)
+            //if (!string.IsNullOrEmpty(tuKhoa))
+            //{
+            //    truyVan = truyVan.Where(dm => dm.TENDM.Contains(tuKhoa));
+            //}
+
+            //truyVan = truyVan.OrderBy(x => x.MADM);
+
+            //int tongSoBanGhi = truyVan.Count();
+            //int tongSoTrang = (int)Math.Ceiling((double)tongSoBanGhi / kichThuocTrang);
+
+            //if (trangHienTai > tongSoTrang && tongSoTrang > 0)
+            //{
+            //    trangHienTai = tongSoTrang;
+            //}
+
+            //// Lấy dữ liệu
+            //var danhSachDanhMuc = truyVan.Skip((trangHienTai - 1) * kichThuocTrang).Take(kichThuocTrang).ToList();
+
+            //// Gửi dữ liệu qua View
+            //ViewBag.TongSoBanGhi = tongSoBanGhi;
+            //ViewBag.TongSoTrang = tongSoTrang;
+            //ViewBag.TrangHienTai = trangHienTai;
+            //ViewBag.KichThuocTrang = kichThuocTrang;
+            //ViewBag.TuKhoaHienTai = tuKhoa;
+
+            //// Tạo Dictionary để tra cứu tên danh mục cha
+            //// Với key là ID, value là tên
+            //ViewBag.TraCuuDanhMuc = db.DanhMucs.ToDictionary(x => x.MADM, x => x.TENDM);
+
+            //return View(danhSachDanhMuc);
+
+            ViewBag.Title = "Quản Lý Danh Mục";
             return View();
         }
-        
+
+
         [HttpGet]
         public ActionResult AddProduct()
         {
@@ -322,37 +364,37 @@ namespace QL_BanHoa.Controllers
         {
             // Lấy danh sách danh mục để chọn làm danh mục cha
             // Ví dụ: thêm danh mục "Hoa hồng đỏ" thì danh mục cha phải là "Hoa hồng"
-            ViewBag.DanhSachDanhMuc = db.DanhMucs.ToList();
+            //ViewBag.DanhSachDanhMuc = db.DanhMucs.ToList();
             return View();
         }
 
-        [HttpPost]
-        public ActionResult AddCategory(DanhMuc danhMuc)
-        {
-            if (ModelState.IsValid)
-            {
-                if (string.IsNullOrEmpty(danhMuc.TENDM))
-                {
-                    ModelState.AddModelError("", "Tên danh mục không được để trống");
-                }
-                else
-                {
-                    // Gán trạng thái mặc định nếu null
-                    if (string.IsNullOrEmpty(danhMuc.TRANGTHAI))
-                    {
-                        danhMuc.TRANGTHAI = "Hiển thị";
-                    }
+        //[HttpPost]
+        //public ActionResult AddCategory(DanhMuc danhMuc)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        if (string.IsNullOrEmpty(danhMuc.TENDM))
+        //        {
+        //            ModelState.AddModelError("", "Tên danh mục không được để trống");
+        //        }
+        //        else
+        //        {
+        //            // Gán trạng thái mặc định nếu null
+        //            if (string.IsNullOrEmpty(danhMuc.TRANGTHAI))
+        //            {
+        //                danhMuc.TRANGTHAI = "Hiển thị";
+        //            }
 
-                    db.DanhMucs.Add(danhMuc);
-                    db.SaveChanges();
-                    return RedirectToAction("CategoryManager");
-                }
-            }
+        //            db.DanhMucs.Add(danhMuc);
+        //            db.SaveChanges();
+        //            return RedirectToAction("CategoryManager");
+        //        }
+        //    }
 
-            // Nếu lỗi, load lại danh sách danh mục cha và trả về View
-            ViewBag.DanhSachDanhMuc = db.DanhMucs.ToList();
-            return View(danhMuc);
-        }
+        //    // Nếu lỗi, load lại danh sách danh mục cha và trả về View
+        //    ViewBag.DanhSachDanhMuc = db.DanhMucs.ToList();
+        //    return View(danhMuc);
+        //}
 
         [HttpGet]
         public ActionResult EditCategory(int id)
@@ -584,6 +626,103 @@ namespace QL_BanHoa.Controllers
                 db.SaveChanges();
             }
             return RedirectToAction("QLLienHe");
+        }
+
+
+        // Lấy thông báo cho Admin 
+        [HttpGet]
+        public ActionResult GetNotifications()
+        {
+            var listThongBao = new List<ThongBaoModel>();
+
+            // 1. ĐƠN HÀNG MỚI (Lấy 5 đơn gần nhất trạng thái 'Đang xử lý')
+            var donHangMoi = db.DonHangs
+                .Where(n => n.TRANG_THAI == "Đang xử lý")
+                .OrderByDescending(n => n.NGAYDAT)
+                .Take(5)
+                .ToList();
+
+            foreach (var item in donHangMoi)
+            {
+                listThongBao.Add(new ThongBaoModel
+                {
+                    TieuDe = "Đơn hàng mới #" + item.MADH,
+                    NoiDung = "Khách đặt mua " + (item.ChiTietDonHangs.Count) + " sản phẩm.", // Hoặc hiện tên khách nếu có
+                    ThoiGian = item.NGAYDAT ?? DateTime.Now,
+                    Loai = "order-new",
+                    LinkLienKet = "/Admin/ChiTietDonHang/" + item.MADH
+                });
+            }
+
+            // 2. KHÁCH HỦY ĐƠN (Lấy 5 đơn gần nhất trạng thái 'Đã hủy')
+            
+            var donHuy = db.DonHangs
+                .Where(n => n.TRANG_THAI == "Đã hủy")
+                .OrderByDescending(n => n.NGAYDAT)
+                .Take(5)
+                .ToList();
+
+            foreach (var item in donHuy)
+            {
+                listThongBao.Add(new ThongBaoModel
+                {
+                    TieuDe = "Đơn hàng đã hủy #" + item.MADH,
+                    NoiDung = "Đơn hàng đã bị hủy.",
+                    ThoiGian = item.NGAYDAT ?? DateTime.Now, // Thực tế nên là ngày hủy
+                    Loai = "order-cancel",
+                    LinkLienKet = "/Admin/ChiTietDonHang/" + item.MADH
+                });
+            }
+
+            // 3. LIÊN HỆ MỚI (Lấy 5 liên hệ gần nhất)
+            
+            var lienHeMoi = db.LienHes.OrderByDescending(n => n.NGAYGUI).Take(5).ToList();
+            foreach (var item in lienHeMoi)
+            {
+                listThongBao.Add(new ThongBaoModel
+                {
+                    TieuDe = "Liên hệ từ " + item.HOTEN, 
+                    NoiDung = item.NOIDUNG.Length > 30 ? item.NOIDUNG.Substring(0, 30) + "..." : item.NOIDUNG,
+                    ThoiGian = item.NGAYGUI ?? DateTime.Now,
+                    Loai = "contact",
+                    LinkLienKet = "/Admin/QLLienHe"
+                });
+            }
+            
+
+            // 4. NGƯỜI DÙNG MỚI 
+            
+            var userMoi = db.NguoiDungs.OrderByDescending(n => n.MAND).Take(5).ToList(); 
+            foreach (var item in userMoi)
+            {
+                listThongBao.Add(new ThongBaoModel
+                {
+                    TieuDe = "Thành viên mới",
+                    NoiDung = item.HOTEN + " vừa đăng ký.",
+                    ThoiGian = DateTime.Now, 
+                    Loai = "user",
+                    LinkLienKet = "/Admin/TaiKhoan"
+                });
+            }
+            
+
+            // Sắp xếp trộn lẫn tất cả theo thời gian giảm dần và lấy 10 tin mới nhất
+            var result = listThongBao.OrderByDescending(n => n.ThoiGian).Take(10).ToList();
+
+            // Trả về JSON kèm số lượng tin chưa đọc (ở đây mình đếm đơn đang xử lý làm số lượng badge)
+            int soLuongCanXuLy = db.DonHangs.Count(n => n.TRANG_THAI == "Đang xử lý");
+
+            return Json(new
+            {
+                Count = soLuongCanXuLy,
+                List = result.Select(x => new {
+                    x.TieuDe,
+                    x.NoiDung,
+                    ThoiGian = x.ThoiGian.ToString("dd/MM HH:mm"), // Format ngày giờ cho đẹp
+                    x.Loai,
+                    x.LinkLienKet
+                })
+            }, JsonRequestBehavior.AllowGet);
         }
     }
 }

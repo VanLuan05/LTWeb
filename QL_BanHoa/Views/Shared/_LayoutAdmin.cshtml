@@ -6,6 +6,7 @@
     <title>@ViewBag.Title - Hoa Store</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <style>
         .sidebar-link {
             transition: all 0.3s ease;
@@ -109,7 +110,7 @@
                         <i class="fas fa-fw fa-envelope"></i>
                         <span>Khách hàng liên hệ</span>
                     </a>
-                    
+
                     <div class="border-t border-gray-700 my-4"></div>
                     <a href="@Url.Action("Index", "Home")" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg text-sm">
                         <i class="fas fa-home w-5"></i>
@@ -146,10 +147,33 @@
                             <input type="text" placeholder="Tìm kiếm..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
                             <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
                         </div>
-                        <button class="relative text-gray-600 hover:text-gray-800">
-                            <i class="fas fa-bell text-xl"></i>
-                            <span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">3</span>
-                        </button>
+
+                        <div class="relative" id="notification-container">
+                            <button id="btn-bell" class="relative text-gray-600 hover:text-gray-800 focus:outline-none mt-1">
+                                <i class="fas fa-bell text-2xl"></i> <span id="notif-count" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-xs text-white flex items-center justify-center hidden animate-pulse">
+                                    0
+                                </span>
+                            </button>
+
+                            <div id="notif-dropdown" class="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-2xl overflow-hidden z-50 hidden border border-gray-100 transform origin-top-right transition-all duration-200">
+                                <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
+                                    <h3 class="text-sm font-bold text-gray-700">Thông báo</h3>
+                                    <span class="text-xs text-indigo-600 hover:underline cursor-pointer">Đánh dấu đã đọc</span>
+                                </div>
+
+                                <div id="notif-list" class="max-h-80 overflow-y-auto">
+                                    <div class="p-4 text-center text-gray-400 text-sm">
+                                        <i class="fas fa-spinner fa-spin mr-2"></i> Đang tải...
+                                    </div>
+                                </div>
+
+                                <div class="bg-gray-50 border-t border-gray-200">
+                                    <a href="@Url.Action("DonHang", "Admin")" class="block w-full text-center py-2 text-sm text-indigo-600 font-semibold hover:bg-gray-100 transition">
+                                        Xem tất cả đơn hàng
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </header>
@@ -161,5 +185,96 @@
     </div>
 
     @RenderSection("scripts", required: false)
+    <script>
+        $(document).ready(function () {
+            // 1. Gọi API lấy thông báo khi trang vừa tải xong
+            loadNotifications();
+
+            // 2. Xử lý đóng/mở Dropdown khi bấm chuông
+            $('#btn-bell').click(function (e) {
+                e.stopPropagation(); // Ngăn sự kiện click lan ra ngoài
+                $('#notif-dropdown').toggleClass('hidden');
+            });
+
+            // 3. Đóng Dropdown khi click ra ngoài
+            $(document).click(function (e) {
+                if (!$(e.target).closest('#notification-container').length) {
+                    $('#notif-dropdown').addClass('hidden');
+                }
+            });
+
+            function loadNotifications() {
+                $.ajax({
+                    url: '/Admin/GetNotifications', // Đường dẫn tới Controller
+                    type: 'GET',
+                    success: function (res) {
+                        // --- Cập nhật số lượng ---
+                        if (res.Count > 0) {
+                            $('#notif-count').text(res.Count).removeClass('hidden');
+                        } else {
+                            $('#notif-count').addClass('hidden');
+                        }
+
+                        // --- Render danh sách ---
+                        var html = '';
+                        if (res.List.length === 0) {
+                            html = `
+                                <div class="flex flex-col items-center justify-center py-6 px-4 text-center">
+                                    <i class="fas fa-check-circle text-4xl text-green-100 mb-2"></i>
+                                    <p class="text-gray-500 text-sm">Không có thông báo mới nào!</p>
+                                </div>`;
+                        } else {
+                            $.each(res.List, function (i, item) {
+                                // Chọn màu và icon dựa theo loại
+                                let iconHtml = '';
+                                let bgClass = '';
+
+                                if (item.Loai === 'order') {
+                                    iconHtml = '<i class="fas fa-shopping-cart text-green-600"></i>';
+                                    bgClass = 'bg-green-100';
+                                } else if (item.Loai === 'cancel') {
+                                    iconHtml = '<i class="fas fa-times-circle text-red-600"></i>';
+                                    bgClass = 'bg-red-100';
+                                } else if (item.Loai === 'contact') {
+                                    iconHtml = '<i class="fas fa-comment-dots text-yellow-600"></i>';
+                                    bgClass = 'bg-yellow-100';
+                                } else {
+                                    iconHtml = '<i class="fas fa-user text-blue-600"></i>';
+                                    bgClass = 'bg-blue-100';
+                                }
+
+                                // Template HTML cho từng dòng (Style Tailwind)
+                                html += `
+                                    <a href="${item.Link}" class="block px-4 py-3 hover:bg-gray-50 transition border-b border-gray-100 last:border-0 group">
+                                        <div class="flex items-start">
+                                            <div class="flex-shrink-0">
+                                                <div class="w-10 h-10 rounded-full ${bgClass} flex items-center justify-center text-lg">
+                                                    ${iconHtml}
+                                                </div>
+                                            </div>
+                                            <div class="ml-3 w-0 flex-1">
+                                                <p class="text-sm font-medium text-gray-900 group-hover:text-indigo-600 transition">${item.TieuDe}</p>
+                                                <p class="text-xs text-gray-500 mt-0.5 truncate">${item.NoiDung}</p>
+                                                <p class="text-xs text-gray-400 mt-1 flex items-center">
+                                                    <i class="far fa-clock mr-1"></i> ${item.ThoiGian}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </a>
+                                `;
+                            });
+                        }
+                        $('#notif-list').html(html);
+                    },
+                    error: function () {
+                        console.log("Lỗi tải thông báo.");
+                    }
+                });
+            }
+
+            // (Tùy chọn) Tự động cập nhật mỗi 60 giây
+            // setInterval(loadNotifications, 60000);
+        });
+    </script>
 </body>
 </html>

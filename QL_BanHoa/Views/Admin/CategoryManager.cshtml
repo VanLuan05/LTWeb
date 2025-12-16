@@ -1,6 +1,4 @@
-﻿﻿@model IEnumerable<QL_BanHoa.DanhMuc>
-
-@{
+﻿﻿@{
     ViewBag.Title = "Quản Lý Danh Mục";
     ViewBag.PageTitle = "Quản Lý Danh Mục";
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
@@ -32,21 +30,22 @@
             </a>
         </div>*@
 
-    @* Form tìm kiếm *@
-    @using (Html.BeginForm("CategoryManager", "Admin", FormMethod.Get, new { @class = "bg-white p-4 rounded-xl shadow" }))
-    {
-        <div class="flex gap-2">
-            <input type="text" name="tuKhoa" value="@ViewBag.TuKhoaHienTai" placeholder="Tìm kiếm tên danh mục..." class="w-full p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
-            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg shadow">
+    @* --- Form tìm kiếm --- *@
+    <div class="bg-white p-4 rounded-xl shadow flex flex-wrap gap-2">
+        <div class="flex-grow flex gap-2">
+            <input type="text" id="txtTuKhoa" placeholder="Tìm kiếm tên danh mục..." class="w-full p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+
+            @* Nút tìm kiếm gọi hàm JS *@
+            <button type="button" onclick="taiDanhSachDanhMuc(1)" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg shadow">
                 <i class="fas fa-search"></i>
             </button>
-
-            @* Nút xóa nhiều *@
-            <button type="button" onclick="kiemTraVaHienModalXoaNhieu()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg shadow whitespace-nowrap">
-                <i class="fas fa-trash-alt mr-2"></i> Xóa chọn
-            </button>
         </div>
-    }
+
+        @* Nút xóa nhiều *@
+        <button type="button" onclick="kiemTraVaHienModalXoaNhieu()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg shadow whitespace-nowrap">
+            <i class="fas fa-trash-alt mr-2"></i> Xóa chọn
+        </button>
+    </div>
 
     @* Bảng hiển thị dữ liệu, được bao bởi form xóa nhiều *@
     @using (Html.BeginForm("DeleteMultipleCategories", "Admin", FormMethod.Post, new { id = "formXoaNhieu" }))
@@ -68,103 +67,28 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao Tác</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        @if (Model != null && Model.Any())
-                        {
-                            foreach (var item in Model)
-                            {
-                                <tr>
-                                    @* checkbox item *@
-                                    <td class="px-6 py-4 text-center">
-                                        <input type="checkbox" name="ids" value="@item.MADM" class="checkItem h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                                    </td>
 
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#@item.MADM</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-indigo-600">@item.TENDM</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        @{ var mapDanhMuc = ViewBag.TraCuuDanhMuc as Dictionary<int, string>; }
-                                        @if (item.MADM_CHA != null && mapDanhMuc != null && mapDanhMuc.ContainsKey((int)item.MADM_CHA))
-                                        {
-                                            <span class="text-indigo-600 font-medium">@mapDanhMuc[(int)item.MADM_CHA]</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="text-gray-400 italic">--- (Gốc) ---</span>
-                                        }
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        @if (item.TRANGTHAI == "Hiển thị")
-                                        {
-                                            @* Màu xanh cho "Hiển thị" *@
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                @item.TRANGTHAI
-                                            </span>
-                                        }
-                                        else
-                                        {
-                                            @* Màu đỏ cho tạm ẩn *@
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                                @item.TRANGTHAI
-                                            </span>
-                                        }
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-
-                                        @* Nút sửa *@
-                                        <a href="@Url.Action("EditCategory", "Admin", new { id = item.MADM })" class="text-indigo-600 hover:text-indigo-900">
-                                            <i class="fas fa-edit"></i> Sửa
-                                        </a>
-
-                                        @* Nút xóa *@
-                                        <button type="button" onclick="hienThiModalXoa(@item.MADM, '@item.TENDM')" class="text-red-600 hover:text-red-900 ml-2 focus:outline-none">
-                                            <i class="fas fa-trash"></i> Xóa
-                                        </button>
-                                    </td>
-                                </tr>
-                            }
-                        }
-                        else
-                        {
-                            <tr><td colspan="6" class="text-center py-4 text-gray-500">Không có danh mục nào.</td></tr>
-                        }
+                    @* --- Body bảng --- *@
+                    <tbody id="tableBody" class="bg-white divide-y divide-gray-200">
+                        @* Loading spinner mặc định *@
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-gray-500">
+                                <i class="fas fa-spinner fa-spin mr-2"></i> Đang tải dữ liệu...
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
         </div>
     }
 
-    @* Phân trang *@
-    <div class="flex flex-col md:flex-row justify-between items-center mt-4 px-2">
-        <div class="text-sm text-gray-700 mb-2 md:mb-0">
-            @if (ViewBag.TongSoBanGhi > 0)
-            {
-                int trg = ViewBag.TrangHienTai;
-                int kt = ViewBag.KichThuocTrang; int tong = ViewBag.TongSoBanGhi;
-                int tu = (trg - 1) * kt + 1;
-                int den = Math.Min(trg * kt, tong);
-                <span>Hiển thị <b>@tu</b> đến <b>@den</b> trong <b>@tong</b> kết quả</span>
-            }
+    @* --- Phân trang --- *@
+    <div class="flex flex-col md:flex-row justify-between items-center mt-4 px-2" id="paginationContainer">
+        <div class="text-sm text-gray-700 mb-2 md:mb-0" id="infoPaging">
         </div>
-        @if (ViewBag.TongSoTrang > 1)
-        {
-            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                @if (ViewBag.TrangHienTai > 1)
-                {
-                    <a href="@Url.Action("CategoryManager", new { trang = ViewBag.TrangHienTai - 1, tuKhoa = ViewBag.TuKhoaHienTai })" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"><i class="fas fa-chevron-left"></i></a>
-                }
-                else
-                { <span class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-gray-100 text-gray-400 cursor-not-allowed"><i class="fas fa-chevron-left"></i></span>}
 
-                <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">Trang @ViewBag.TrangHienTai / @ViewBag.TongSoTrang</span>
-
-                @if (ViewBag.TrangHienTai < ViewBag.TongSoTrang)
-                {
-                    <a href="@Url.Action("CategoryManager", new { trang = ViewBag.TrangHienTai + 1, tuKhoa = ViewBag.TuKhoaHienTai })" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"><i class="fas fa-chevron-right"></i></a>
-                }
-                else
-                { <span class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-gray-100 text-gray-400 cursor-not-allowed"><i class="fas fa-chevron-right"></i></span>}
-            </nav>
-        }
+        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination" id="btnPaging">
+        </nav>
     </div>
 </div>
 
@@ -206,7 +130,7 @@
     </div>
 </div>
 
-@* --- MODAL XÓA NHIỀU --- *@
+@* --- Modal xóa nhiều --- *@
 <div id="modalXoaNhieu" class="fixed z-10 inset-0 overflow-y-auto hidden" role="dialog" aria-modal="true">
     <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
         <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
@@ -229,8 +153,135 @@
     </div>
 </div>
 
-@* --- Script xử lý modal và checkbox --- *@
+@* --- Script xử lý API & Modal --- *@
 <script>
+    // Phần gọi API
+    const API_URL = '/api/DanhMucAPI';
+
+    // Chạy khi trang load xong
+    document.addEventListener("DOMContentLoaded", function () {
+        taiDanhSachDanhMuc(1);
+    });
+
+    // Hàm tải dữ liệu
+    async function taiDanhSachDanhMuc(trang) {
+        const tuKhoa = document.getElementById('txtTuKhoa').value;
+        const tbody = document.getElementById('tableBody');
+
+        // Hiển thị loading
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-gray-500"><i class="fas fa-spinner fa-spin mr-2"></i> Đang tải dữ liệu...</td></tr>';
+
+        try {
+            const response = await fetch(`${API_URL}/GetDanhMucs?trang=${trang}&tuKhoa=${tuKhoa}`);
+            if (!response.ok) throw new Error('Lỗi kết nối API');
+            const dataRes = await response.json();
+
+            hienThiDuLieu(dataRes.Data);
+            hienThiPhanTrang(dataRes);
+
+            // Reset checkbox all mỗi khi load trang mới
+            document.getElementById('checkAll').checked = false;
+        } catch (error) {
+            console.error(error);
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-red-500 py-4"><i class="fas fa-exclamation-triangle"></i> Lỗi khi tải dữ liệu!</td></tr>';
+        }
+    }
+
+    // Hàm render bảng
+    function hienThiDuLieu(danhSach) {
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+
+        if (!danhSach || danhSach.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-gray-500">Không có danh mục nào.</td></tr>';
+            return;
+        }
+
+        danhSach.forEach(item => {
+            // Xử lý màu trạng thái
+            let badgeClass = '';
+            if (item.TRANGTHAI === 'Hiển thị') badgeClass = 'bg-green-100 text-green-800';
+            else badgeClass = 'bg-red-100 text-red-800';
+
+            // Xử lý tên danh mục cha
+            let noiDungCha = '';
+            if (item.TenDanhMucCha) {
+                noiDungCha = `<span class="text-indigo-600 font-medium">${item.TenDanhMucCha}</span>`;
+            } else {
+                noiDungCha = `<span class="text-gray-400 italic">--- (Gốc) ---</span>`;
+            }
+
+            // Url cho nút sửa
+            let urlSua = `/Admin/EditCategory/${item.MADM}`;
+
+            // Render dòng HTML
+            // Checkbox phải có name="ids" để DeleteMultiple bắt được
+            const row = `
+                <tr>
+                    <td class="px-6 py-4 text-center">
+                        <input type="checkbox" name="ids" value="${item.MADM}" class="checkItem h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#${item.MADM}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-indigo-600">${item.TENDM}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${noiDungCha}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${badgeClass}">
+                            ${item.TRANGTHAI}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                        <a href="${urlSua}" class="text-indigo-600 hover:text-indigo-900">
+                            <i class="fas fa-edit"></i> Sửa
+                        </a>
+                        <button type="button" onclick="hienThiModalXoa(${item.MADM}, '${item.TENDM}')" class="text-red-600 hover:text-red-900 ml-2 focus:outline-none">
+                            <i class="fas fa-trash"></i> Xóa
+                        </button>
+                    </td>
+                </tr>
+            `;
+            tbody.insertAdjacentHTML('beforeend', row);
+        });
+    }
+
+    // Hàm render phân trang
+    function hienThiPhanTrang(data) {
+        const info = document.getElementById('infoPaging');
+        const btns = document.getElementById('btnPaging');
+        const { CurrentPage, TotalPages, Total } = data;
+        const pageSize = 20;
+
+        // Render Info
+        let start = (CurrentPage - 1) * pageSize + 1;
+        let end = Math.min(CurrentPage * pageSize, Total);
+        if (Total === 0) start = 0;
+
+        info.innerHTML = `Hiển thị <b>${start}</b> đến <b>${end}</b> trong <b>${Total}</b> kết quả`;
+
+        // Render Buttons
+        let htmlBtns = '';
+        if (TotalPages > 1) {
+            // Nút Trước
+            if (CurrentPage > 1) {
+                htmlBtns += `<button onclick="taiDanhSachDanhMuc(${CurrentPage - 1})" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"><i class="fas fa-chevron-left"></i></button>`;
+            } else {
+                htmlBtns += `<span class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-gray-100 text-gray-400 cursor-not-allowed"><i class="fas fa-chevron-left"></i></span>`;
+            }
+
+            // Trang hiện tại
+            htmlBtns += `<span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">Trang ${CurrentPage} / ${TotalPages}</span>`;
+
+            // Nút Sau
+            if (CurrentPage < TotalPages) {
+                htmlBtns += `<button onclick="taiDanhSachDanhMuc(${CurrentPage + 1})" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"><i class="fas fa-chevron-right"></i></button>`;
+            } else {
+                htmlBtns += `<span class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-gray-100 text-gray-400 cursor-not-allowed"><i class="fas fa-chevron-right"></i></span>`;
+            }
+        }
+        btns.innerHTML = htmlBtns;
+    }
+
+    // --- CÁC SCRIPT XỬ LÝ MODAL & CHECKBOX ---
+
     // 1. Modal Xóa Đơn
     function hienThiModalXoa(id, ten) {
         document.getElementById('idCanXoa').value = id;
