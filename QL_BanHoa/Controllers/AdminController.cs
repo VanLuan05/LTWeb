@@ -670,6 +670,87 @@ namespace QL_BanHoa.Controllers
             return View(users);
 
         }
+        // GET: Hiển thị form sửa tài khoản
+        [HttpGet]
+        public ActionResult EditAccount(int id)
+        {
+            // Tìm tài khoản theo ID
+            var user = db.NguoiDungs.Find(id);
+            if (user == null)
+            {
+                TempData["Loi"] = "Không tìm thấy tài khoản người dùng.";
+                return RedirectToAction("TaiKhoan");
+            }
+            return View(user);
+        }
+
+        // POST: Thực hiện cập nhật tài khoản
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult EditAccount(NguoiDung nguoiDung)
+        {
+            if (ModelState.IsValid)
+            {
+                var userInDB = db.NguoiDungs.Find(nguoiDung.MAND);
+                if (userInDB != null)
+                {
+                    // Cập nhật các thông tin cho phép sửa
+                    userInDB.HOTEN = nguoiDung.HOTEN;
+                    userInDB.EMAIL = nguoiDung.EMAIL;
+                    userInDB.SODIENTHOAI = nguoiDung.SODIENTHOAI;
+                    userInDB.DIACHI = nguoiDung.DIACHI;
+                    userInDB.VAITRO = nguoiDung.VAITRO; // Cập nhật quyền hạn (Khách hàng/Quản trị)
+
+                    db.SaveChanges();
+                    TempData["ThongBao"] = $"Cập nhật tài khoản {userInDB.TENDANGNHAP} thành công!";
+                    return RedirectToAction("TaiKhoan");
+                }
+            }
+
+            TempData["Loi"] = "Cập nhật thất bại. Vui lòng kiểm tra lại thông tin.";
+            return View(nguoiDung);
+        }
+
+        // XÓA TÀI KHOẢN (POST)
+        [HttpPost]
+        public ActionResult DeleteAccount(int id)
+        {
+            var user = db.NguoiDungs.Find(id);
+            if (user != null)
+            {
+                // Kiểm tra xem tài khoản có đơn hàng không
+                bool coDonHang = db.DonHangs.Any(dh => dh.MAND == id);
+                if (coDonHang)
+                {
+                    TempData["Loi"] = $"Không thể xóa tài khoản '{user.HOTEN}' vì đã có lịch sử mua hàng.";
+                    return RedirectToAction("TaiKhoan");
+                }
+
+                try
+                {
+                    // Xóa giỏ hàng trước (nếu có)
+                    var gioHangs = db.GioHangs.Where(gh => gh.MAND == id).ToList();
+                    db.GioHangs.RemoveRange(gioHangs);
+
+                    // Xóa người dùng
+                    db.NguoiDungs.Remove(user);
+                    db.SaveChanges();
+
+                    TempData["ThongBao"] = $"Đã xóa tài khoản '{user.HOTEN}' thành công!";
+                }
+                catch (Exception)
+                {
+                    TempData["Loi"] = "Không thể xóa tài khoản này do lỗi hệ thống.";
+                }
+            }
+            else
+            {
+                TempData["Loi"] = "Không tìm thấy tài khoản cần xóa.";
+            }
+
+            return RedirectToAction("TaiKhoan");
+        }
+
         public ActionResult Logout()
         {
             FormsAuthentication.SignOut(); 
