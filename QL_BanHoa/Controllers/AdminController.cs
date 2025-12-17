@@ -187,6 +187,11 @@ namespace QL_BanHoa.Controllers
             // Dictionary để hiển thị tên danh mục cha
             ViewBag.TraCuuDanhMuc = db.DanhMucs.ToDictionary(x => x.MADM, x => x.TENDM);
 
+            // Tính toán số lượng hoa có trong danh mục đó
+            var soLuongHoa = db.SanPhams.Where(p => p.MADM != null).GroupBy(p => p.MADM).ToDictionary(g => g.Key.Value, g => g.Count());
+            // Gửi dữ liệu qua View
+            ViewBag.DemSoLuongHoa = soLuongHoa;
+
             return View(danhSachHienThi);
         }
 
