@@ -26,8 +26,8 @@ namespace QL_BanHoa.Controllers
             // 1. Thống kê Tổng đơn hàng
             model.SoLuongDonHang = db.DonHangs.Count();
 
-            // 2. Thống kê Tổng doanh thu (Nếu null thì trả về 0)
-            model.TongDoanhThu = db.DonHangs.Sum(n => n.TONGTIEN) ?? 0;
+            // 2. Thống kê Tổng doanh thu, chỉ tính những đơn hàng nào đã giao thành công
+            model.TongDoanhThu = db.DonHangs.Where(n => n.TRANG_THAI == "Đã giao").Sum(n => n.TONGTIEN) ?? 0;
 
             // 3. Thống kê Tổng sản phẩm
             model.SoLuongSanPham = db.SanPhams.Count();
@@ -53,12 +53,12 @@ namespace QL_BanHoa.Controllers
                 // Tính tổng tiền của tháng i trong năm nay
                 // Thêm .Value vào để lấy giá trị ngày tháng thực
                 decimal tongTienThang = db.DonHangs
-                    .Where(n => n.NGAYDAT.HasValue && n.NGAYDAT.Value.Month == i && n.NGAYDAT.Value.Year == namHienTai)
+                    .Where(n => n.NGAYDAT.HasValue && n.NGAYDAT.Value.Month == i && n.NGAYDAT.Value.Year == namHienTai && n.TRANG_THAI == "Đã giao")
                     .Sum(n => n.TONGTIEN) ?? 0;
 
                 model.ChartDoanhThu.Add(tongTienThang);
 
-                // Giả sử Lợi nhuận là 30% doanh thu (Bạn có thể sửa logic này sau)
+                // Giả sử lợi nhuận là 30% doanh thu
                 model.ChartLoiNhuan.Add(tongTienThang * 0.3m);
             }
 
