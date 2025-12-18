@@ -1,456 +1,198 @@
-﻿@model List<QL_BanHoa.LienHe>
+﻿@model IEnumerable<QL_BanHoa.LienHe>
+
 @{
-    ViewBag.Title = "Quản Lý Liên Hệ";
-    ViewBag.PageTitle = "Hộp thư khách hàng";
+    ViewBag.Title = "Quản lý hộp thư liên hệ";
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 
-<!-- Custom CSS -->
 <style>
-    :root {
-        --primary-color: #4e73df;
-        --success-color: #1cc88a;
-        --danger-color: #e74a3b;
-        --warning-color: #f6c23e;
-        --info-color: #36b9cc;
-        --light-bg: #f8f9fc;
+    .card-mailbox {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
     }
 
-    /* Avatar Circle */
-    .avatar-circle {
-        width: 48px;
-        height: 48px;
-        background: linear-gradient(135deg, var(--primary-color), #6e8efb);
-        color: white;
+    .card-header-mailbox {
+        background-color: #f8f9fc;
+        border-bottom: 1px solid #e3e6f0;
+        padding: 15px 20px;
+        color: #1cc88a; /* Màu xanh lá chủ đạo */
+        font-weight: bold;
+        font-size: 1.1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .table-mailbox thead th {
+        background-color: #eaecf4;
+        color: #4e73df;
+        border-bottom: 2px solid #e3e6f0;
+        text-align: center;
+        vertical-align: middle;
+        font-weight: 700;
+    }
+
+    .table-mailbox tbody td {
+        vertical-align: middle;
+        color: #5a5c69;
+    }
+
+    .sender-avatar {
+        width: 40px;
+        height: 40px;
+        background-color: #e2e6ea;
+        color: #1cc88a;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-weight: 600;
-        font-size: 1.1rem;
-        text-transform: uppercase;
-        box-shadow: 0 3px 10px rgba(78, 115, 223, 0.2);
-        transition: all 0.3s ease;
+        font-weight: bold;
+        margin-right: 15px;
+        font-size: 1.2rem;
     }
 
-        .avatar-circle:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(78, 115, 223, 0.3);
-        }
+    .sender-info-container {
+        display: flex;
+        align-items: center;
+    }
 
-    /* Message Preview */
-    .message-preview {
-        max-width: 300px;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
+    .sender-name {
+        font-weight: bold;
+        color: #333;
+        display: block;
+    }
+
+    .sender-meta {
+        font-size: 0.85rem;
+        color: #858796;
+    }
+
+    /* CSS cho phần nội dung tin nhắn */
+    .message-content {
+        max-width: 350px;
+        white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        line-height: 1.4;
-        cursor: pointer;
-        color: #495057;
-        transition: color 0.2s;
-        padding: 0.5rem 0;
+        display: inline-block;
+        cursor: pointer; /* Biến con trỏ thành bàn tay */
+        color: #4e73df; /* Màu xanh để gợi ý có thể click */
+        transition: 0.2s;
     }
 
-        .message-preview:hover {
-            color: var(--primary-color);
+        .message-content:hover {
+            color: #2e59d9;
+            text-decoration: underline;
         }
-
-    /* Action Buttons */
-    .btn-action {
-        width: 36px;
-        height: 36px;
-        padding: 0;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-        border: 1px solid transparent;
-    }
-
-    .btn-action-view {
-        background-color: rgba(78, 115, 223, 0.1);
-        color: var(--primary-color);
-        border-color: rgba(78, 115, 223, 0.2);
-    }
 
     .btn-action-delete {
-        background-color: rgba(231, 74, 59, 0.1);
-        color: var(--danger-color);
-        border-color: rgba(231, 74, 59, 0.2);
+        color: #e74a3b;
+        background: #fff;
+        border: 1px solid #e74a3b;
+        transition: 0.3s;
     }
 
-    .btn-action:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-
-    /* Badge Styling */
-    .badge-status {
-        padding: 0.35rem 1rem;
-        border-radius: 20px;
-        font-weight: 500;
-        font-size: 0.85rem;
-        border: 1px solid;
-    }
-
-    .badge-new {
-        background-color: rgba(231, 74, 59, 0.1);
-        color: var(--danger-color);
-        border-color: rgba(231, 74, 59, 0.3);
-    }
-
-    .badge-read {
-        background-color: rgba(28, 200, 138, 0.1);
-        color: var(--success-color);
-        border-color: rgba(28, 200, 138, 0.3);
-    }
-
-    /* Table Styling */
-    .table-contact {
-        border-collapse: separate;
-        border-spacing: 0;
-    }
-
-        .table-contact thead th {
-            background-color: var(--light-bg);
-            border-top: 1px solid #e3e6f0;
-            border-bottom: 2px solid #e3e6f0;
-            padding: 1rem 1.5rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.5px;
-            color: #5a5c69;
+        .btn-action-delete:hover {
+            background: #e74a3b;
+            color: #fff;
         }
-
-        .table-contact tbody td {
-            padding: 1.25rem 1.5rem;
-            vertical-align: middle;
-            border-bottom: 1px solid #e3e6f0;
-            transition: background-color 0.2s;
-        }
-
-        .table-contact tbody tr {
-            transition: all 0.3s ease;
-        }
-
-            .table-contact tbody tr:hover {
-                background-color: rgba(78, 115, 223, 0.02);
-                transform: translateX(4px);
-            }
-
-    /* Empty State */
-    .empty-state {
-        padding: 4rem 1rem;
-        text-align: center;
-    }
-
-    .empty-icon {
-        width: 120px;
-        height: 120px;
-        margin: 0 auto 2rem;
-        background: linear-gradient(135deg, var(--light-bg), #e3e8ff);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-        .empty-icon i {
-            font-size: 3.5rem;
-            color: #a0a4b8;
-        }
-
-    /* Modal Styling */
-    .modal-content {
-        border-radius: 12px;
-        border: none;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-    }
-
-    .modal-header {
-        border-radius: 12px 12px 0 0;
-        background: linear-gradient(135deg, var(--primary-color), #6e8efb);
-        padding: 1.5rem;
-    }
-
-    .modal-body {
-        padding: 2rem;
-    }
-
-    /* Card Styling */
-    .card-contact {
-        border: none;
-        border-radius: 12px;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-        overflow: hidden;
-    }
-
-    .card-header-contact {
-        background-color: white;
-        border-bottom: 1px solid #e3e6f0;
-        padding: 1.5rem 2rem;
-    }
-
-    /* Stat Card */
-    .stat-card {
-        background: linear-gradient(135deg, var(--primary-color), #6e8efb);
-        color: white;
-        border-radius: 10px;
-        padding: 1.5rem;
-        box-shadow: 0 5px 15px rgba(78, 115, 223, 0.2);
-    }
-
-    .stat-number {
-        font-size: 2.5rem;
-        font-weight: 700;
-        line-height: 1;
-        margin-bottom: 0.5rem;
-    }
-
-    /* Search Box */
-    .search-box {
-        position: relative;
-        max-width: 300px;
-    }
-
-    .search-input {
-        padding-left: 2.5rem;
-        border: 1px solid #e3e6f0;
-        border-radius: 8px;
-        transition: all 0.3s;
-    }
-
-        .search-input:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.1);
-        }
-
-    .search-icon {
-        position: absolute;
-        left: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #a0a4b8;
-        z-index: 10;
-    }
-
-    /* Responsive */
-    @@media (max-width: 768px) {
-        .table-contact thead {
-            display: none;
-        }
-
-        .table-contact tbody tr {
-            display: block;
-            margin-bottom: 1rem;
-            border: 1px solid #e3e6f0;
-            border-radius: 10px;
-            padding: 1rem;
-            background: white;
-        }
-
-        .table-contact tbody td {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.75rem 0;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-            .table-contact tbody td:before {
-                content: attr(data-label);
-                font-weight: 600;
-                color: #5a5c69;
-                font-size: 0.85rem;
-            }
-
-            .table-contact tbody td:last-child {
-                border-bottom: none;
-            }
-    }
 </style>
 
-<div class="container-fluid py-4">
-    <!-- Header -->
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <div class="d-flex align-items-center mb-3">
-                <div class="me-3">
-                    <div class="bg-primary bg-opacity-10 rounded-circle p-3">
-                        <i class="fas fa-envelope-open-text fa-2x text-primary"></i>
-                    </div>
-                </div>
-                <div>
-                    <h1 class="h3 mb-1 text-gray-800 fw-bold">Hộp thư liên hệ</h1>
-                    <p class="text-muted mb-0">Quản lý và phản hồi tin nhắn từ khách hàng</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="stat-card">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="text-white-50 small text-uppercase fw-semibold">Tổng tin nhắn</div>
-                        <div class="stat-number">@(Model?.Count ?? 0)</div>
-                    </div>
-                    <div class="bg-white bg-opacity-20 rounded-circle p-3">
-                        <i class="fas fa-comments fa-2x"></i>
-                    </div>
-                </div>
-                <div class="mt-3 small">
-                    <i class="fas fa-clock me-1"></i> Cập nhật lúc @DateTime.Now.ToString("HH:mm")
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="container-fluid">
 
-    <!-- Main Card -->
-    <div class="card card-contact">
-        <div class="card-header-contact d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
-            <div class="mb-3 mb-md-0">
-                <h5 class="mb-0 fw-bold text-gray-800">
-                    <i class="fas fa-inbox me-2 text-primary"></i>Danh sách tin nhắn
-                </h5>
-            </div>
-            <div class="d-flex align-items-center">
-                <div class="search-box me-3">
-                    <i class="fas fa-search search-icon"></i>
-                    <input type="text" id="searchInput" class="form-control search-input" placeholder="Tìm theo tên, email...">
-                </div>
-                <button class="btn btn-primary" onclick="refreshPage()">
-                    <i class="fas fa-sync-alt me-2"></i>Làm mới
-                </button>
-            </div>
+    <h1 class="h3 mb-4 text-gray-800">Quản lý phản hồi & Liên hệ</h1>
+
+    <div class="card card-mailbox mb-4">
+        <div class="card-header card-header-mailbox">
+            <span>
+                <i class="fas fa-envelope-open-text mr-2"></i> Danh sách tin nhắn từ khách hàng
+            </span>
+            <span class="badge badge-success badge-counter">
+                Tổng: @Model.Count() tin
+            </span>
         </div>
 
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-contact" id="contactTable" width="100%" cellspacing="0">
+                <table class="table table-mailbox table-hover mb-0" width="100%" cellspacing="0">
                     <thead>
                         <tr>
-                            <th width="20%" class="ps-4">Người gửi</th>
-                            <th width="15%">Thông tin liên hệ</th>
-                            <th width="30%">Nội dung</th>
-                            <th width="15%" class="text-center">Thời gian</th>
-                            <th width="10%" class="text-center">Trạng thái</th>
-                            <th width="10%" class="text-center">Tác vụ</th>
+                            <th style="width: 5%;">#</th>
+                            <th style="width: 30%;">Người gửi</th>
+                            <th style="width: 40%;">Nội dung tin nhắn</th>
+                            <th style="width: 15%;">Ngày gửi</th>
+                            <th style="width: 10%;">Tác vụ</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @if (Model != null && Model.Count > 0)
+                        @if (Model != null && Model.Any())
                         {
+                            int i = 1;
                             foreach (var item in Model)
                             {
-                                string firstLetter = !string.IsNullOrEmpty(item.HOTEN) ? item.HOTEN.Substring(0, 1) : "?";
-                                string ngayGuiFormatted = item.NGAYGUI.ToString();
-                                bool isNew = item.TRANGTHAI == "Chưa xem" || item.TRANGTHAI == null;
+                                <tr>
+                                    <td class="text-center font-weight-bold">@i</td>
 
-                                <tr data-search="@(item.HOTEN?.ToLower() + " " + item.EMAIL?.ToLower() + " " + item.NOIDUNG?.ToLower())"
-                                    data-id="@item.MALH"
-                                    data-phone="@item.SDT">
-                                    <td data-label="Người gửi" class="ps-4">
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar-circle me-3" title="@item.HOTEN">@firstLetter</div>
+                                    <td>
+                                        <div class="sender-info-container">
+                                            <div class="sender-avatar">
+                                                @(item.HOTEN.Length > 0 ? item.HOTEN.Substring(0, 1).ToUpper() : "?")
+                                            </div>
                                             <div>
-                                                <div class="fw-bold text-dark">@item.HOTEN</div>
-                                                <small class="text-muted">ID: #@item.MALH</small>
+                                                <span class="sender-name">@item.HOTEN</span>
+                                                <div class="sender-meta">
+                                                    <i class="fas fa-envelope fa-xs mr-1"></i> @item.EMAIL <br />
+                                                    <i class="fas fa-phone fa-xs mr-1"></i> @(string.IsNullOrEmpty(item.SDT) ? "Chưa có SĐT" : item.SDT)
+                                                </div>
                                             </div>
                                         </div>
                                     </td>
-                                    <td data-label="Thông tin liên hệ">
-                                        <div class="d-flex flex-column">
-                                            <div class="d-flex align-items-center mb-1">
-                                                <i class="fas fa-envelope text-info me-2" style="width: 16px;"></i>
-                                                <span class="text-truncate" style="max-width: 150px;">@item.EMAIL</span>
-                                            </div>
-                                            @if (!string.IsNullOrEmpty(item.SDT))
+
+                                    <td>
+                                        <div class="message-content view-details"
+                                             data-name="@item.HOTEN"
+                                             data-email="@item.EMAIL"
+                                             data-content="@item.NOIDUNG"
+                                             data-time="@string.Format("{0:dd/MM/yyyy HH:mm}", item.NGAYGUI)"
+                                             title="Nhấn để xem chi tiết">
+
+                                            <i class="fas fa-comment-alt mr-1 text-gray-400"></i>
+                                            @if (item.NOIDUNG.Length > 60)
                                             {
-                                                <div class="d-flex align-items-center">
-                                                    <i class="fas fa-phone-alt text-success me-2" style="width: 16px;"></i>
-                                                    <span>@item.SDT</span>
-                                                </div>
+                                                @item.NOIDUNG.Substring(0, 60) <span>...</span>
+                                            }
+                                            else
+                                            {
+                                                @item.NOIDUNG
                                             }
                                         </div>
                                     </td>
-                                    <td data-label="Nội dung">
-                                        @{
-                                            var safeContent = item.NOIDUNG != null
-                                                ? item.NOIDUNG.Replace("'", "\\'").Replace("\"", "&quot;").Replace("\r\n", "\\n")
-                                                : "";
-                                            var safeName = item.HOTEN != null ? item.HOTEN.Replace("'", "\\'") : "";
-                                            var safeEmail = item.EMAIL != null ? item.EMAIL.Replace("'", "\\'") : "";
-                                            var safePhone = item.SDT != null ? item.SDT.Replace("'", "\\'") : "";
-                                        }
-                                        <div class="message-preview"
-                                             onclick="showDetail('@safeName',
-                                                     '@safeEmail',
-                                                     '@safeContent',
-                                                     '@ngayGuiFormatted',
-                                                     @item.MALH,
-                                                     '@safePhone')">
-                                            @item.NOIDUNG
-                                        </div>
-                                    </td>
-                                    <td data-label="Thời gian" class="text-center">
-                                        <div class="d-flex flex-column align-items-center">
-                                            <span class="fw-semibold text-dark">@item.NGAYGUI.ToString()</span>
-                                            <small class="text-muted">@item.NGAYGUI.ToString()</small>
-                                        </div>
-                                    </td>
-                                    <td data-label="Trạng thái" class="text-center">
-                                        @if (isNew)
-                                        {
-                                            <span class="badge-status badge-new">
-                                                <i class="fas fa-circle me-1" style="font-size: 8px;"></i>Mới
-                                            </span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge-status badge-read">
-                                                <i class="fas fa-check me-1"></i>Đã xem
-                                            </span>
-                                        }
-                                    </td>
-                                    <td data-label="Tác vụ" class="text-center">
-                                        <div class="d-flex justify-content-center gap-2">
-                                            <button type="button" class="btn-action btn-action-view"
-                                                    onclick="showDetail('@safeName',
-                                                            '@safeEmail',
-                                                            '@safeContent',
-                                                            '@ngayGuiFormatted',
-                                                            @item.MALH,
-                                                            '@safePhone')"
-                                                    title="Xem chi tiết">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
 
-                                            <a href="@Url.Action("XoaLienHe", "Admin", new { id = item.MALH })"
-                                               class="btn-action btn-action-delete"
-                                               onclick="return confirmDelete('@item.HOTEN');"
-                                               title="Xóa tin nhắn">
-                                                <i class="fas fa-trash-alt"></i>
-                                            </a>
-                                        </div>
+                                    <td class="text-center">
+                                        <span class="badge badge-light border text-secondary px-2 py-1">
+                                            <i class="far fa-clock mr-1"></i>
+                                            @string.Format("{0:dd/MM/yyyy HH:mm}", item.NGAYGUI)
+                                        </span>
+                                    </td>
+
+                                    <td class="text-center">
+                                        <a href="@Url.Action("XoaLienHe", "Admin", new { id = item.MALH })"
+                                           class="btn btn-action-delete btn-sm btn-circle"
+                                           title="Xóa tin nhắn này"
+                                           onclick="return confirm('Bạn có chắc chắn muốn xóa tin nhắn của @item.HOTEN không?');">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
                                     </td>
                                 </tr>
+                                i++;
                             }
                         }
                         else
                         {
                             <tr>
-                                <td colspan="6" class="empty-state">
-                                    <div class="empty-icon">
-                                        <i class="fas fa-envelope-open"></i>
-                                    </div>
-                                    <h5 class="text-gray-600 mb-2">Hộp thư trống</h5>
-                                    <p class="text-muted mb-4">Hiện tại không có tin nhắn liên hệ nào</p>
-                                    <button class="btn btn-primary" onclick="refreshPage()">
-                                        <i class="fas fa-sync-alt me-2"></i>Làm mới
-                                    </button>
+                                <td colspan="5" class="text-center py-5 text-muted">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/4076/4076432.png" width="80" class="mb-3 opacity-50" alt="Empty" />
+                                    <p>Hộp thư đang trống. Chưa có liên hệ nào!</p>
                                 </td>
                             </tr>
                         }
@@ -458,205 +200,49 @@
                 </table>
             </div>
         </div>
-
-        @if (Model != null && Model.Count > 0)
-        {
-            <div class="card-footer bg-white border-top py-3">
-                <div class="row align-items-center">
-                    <div class="col-md-6">
-                        <span class="text-muted small">
-                            Hiển thị <strong>@Model.Count</strong> tin nhắn
-                        </span>
-                    </div>
-                    <div class="col-md-6 text-md-end">
-                        <span class="text-muted small">
-                            <i class="fas fa-info-circle me-1"></i>
-                            Nhấp vào nội dung để xem chi tiết
-                        </span>
-                    </div>
-                </div>
-            </div>
-        }
     </div>
 </div>
 
-<!-- Detail Modal -->
-<div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+<div class="modal fade" id="messageModal" tabindex="-1" role="dialog" aria-labelledby="messageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <div class="d-flex align-items-center">
-                    <div class="avatar-circle me-3" id="modalAvatar"></div>
-                    <div>
-                        <h5 class="modal-title fw-bold text-gray-800" id="modalName"></h5>
-                        <p class="text-muted small mb-0" id="modalEmail"></p>
-                    </div>
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
+            <div class="modal-header bg-success text-bg-dark">
+                <h5 class="modal-title font-b-bold" id="messageModalLabel">
+                    <i class="fas fa-envelope-open mr-2"></i> Chi tiết tin nhắn
+                </h5>
+                
             <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label small text-muted fw-bold text-uppercase mb-2">
-                            <i class="fas fa-calendar-alt me-2"></i>Thời gian gửi
-                        </label>
-                        <div class="fw-semibold text-dark" id="modalDate"></div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label small text-muted fw-bold text-uppercase mb-2">
-                            <i class="fas fa-phone-alt me-2"></i>Số điện thoại
-                        </label>
-                        <div class="fw-semibold text-dark" id="modalPhone"></div>
-                    </div>
+                <div class="mb-3 pb-3 border-bottom">
+                    <h5 class="font-weight-bold text-dark mb-1" id="modalName"></h5>
+                  
+                    <p class="text-muted mb-0"><small><i class="far fa-clock mr-1"></i> <span id="modalTime"></span></small></p>
                 </div>
-
-                <div class="mb-3">
-                    <label class="form-label small text-muted fw-bold text-uppercase mb-2">
-                        <i class="fas fa-comment-dots me-2"></i>Nội dung tin nhắn
-                    </label>
-                    <div class="bg-light p-4 rounded-lg border" style="min-height: 150px; white-space: pre-line; line-height: 1.6;" id="modalContent"></div>
+                <div class="p-3 bg-light rounded text-dark" style="font-size: 1.1rem; line-height: 1.6;">
+                    <i class="fas fa-quote-left text-success mr-2 opacity-50"></i>
+                    <span id="modalContent"></span>
                 </div>
-
-               
+            </div>
+            
         </div>
     </div>
 </div>
 
-<!-- JavaScript -->
-<script>
-    // Hàm hiển thị chi tiết tin nhắn
-    function showDetail(name, email, content, date, id, phone) {
-        // Lấy chữ cái đầu cho avatar
-        const firstLetter = name ? name.charAt(0).toUpperCase() : '?';
-        document.getElementById('modalAvatar').innerText = firstLetter;
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Khi nhấn vào class .view-details
+            $('.view-details').click(function () {
+            
+                var content = $(this).data('content');
+                var time = $(this).data('time');
 
-        // Điền thông tin vào modal
-        document.getElementById('modalName').innerText = name || 'Không có tên';
-        document.getElementById('modalEmail').innerText = email || 'Không có email';
-        document.getElementById('modalContent').innerText = decodeHtmlEntities(content);
-        document.getElementById('modalDate').innerText = date || 'Không có thời gian';
-        document.getElementById('modalPhone').innerText = phone || 'Không có số điện thoại';
+               
+                $('#modalContent').text(content);
+                $('#modalTime').text(time);
 
-        // Tạo link phản hồi email
-        const subject = encodeURIComponent(`Phản hồi từ Bloom Flower - Tin nhắn #${id}`);
-        const body = encodeURIComponent(`Chào ${name},\n\nCảm ơn bạn đã liên hệ với Bloom Flower.\n\n`);
-        const mailtoLink = `mailto:${email}?subject=${subject}&body=${body}`;
-        document.getElementById('btnReply').href = mailtoLink;
-
-        // Hiển thị modal
-        const modal = new bootstrap.Modal(document.getElementById('detailModal'));
-        modal.show();
-
-        // Đánh dấu đã xem (gọi API nếu có)
-        markAsRead(id);
-    }
-
-    // Hàm decode HTML entities
-    function decodeHtmlEntities(text) {
-        if (!text) return '';
-
-        const textarea = document.createElement('textarea');
-        textarea.innerHTML = text
-            .replace(/\\n/g, '\n')
-            .replace(/&quot;/g, '"')
-            .replace(/&#39;/g, "'");
-        return textarea.value;
-    }
-
-    // Hàm đánh dấu đã đọc (có thể tích hợp API thực tế)
-    function markAsRead(id) {
-        // Gọi API đánh dấu đã đọc
-        fetch(`/Admin/MarkAsRead/${id}`)
-            .then(response => {
-                if (response.ok) {
-                    // Cập nhật giao diện
-                    const row = document.querySelector(`tr[data-id="${id}"]`);
-                    if (row) {
-                        const badge = row.querySelector('.badge-status');
-                        if (badge) {
-                            badge.className = 'badge-status badge-read';
-                            badge.innerHTML = '<i class="fas fa-check me-1"></i>Đã xem';
-                        }
-                    }
-                }
-            })
-            .catch(error => console.error('Error marking as read:', error));
-    }
-
-    // Hàm xác nhận xóa
-    function confirmDelete(name) {
-        return confirm(`Bạn có chắc chắn muốn xóa tin nhắn từ "${name}"?\nHành động này không thể hoàn tác.`);
-    }
-
-    // Hàm tìm kiếm
-    document.getElementById('searchInput').addEventListener('input', function() {
-        const searchTerm = this.value.toLowerCase().trim();
-        const rows = document.querySelectorAll('#contactTable tbody tr[data-search]');
-        let hasVisibleRows = false;
-
-        rows.forEach(row => {
-            const searchData = row.getAttribute('data-search');
-            if (searchData.includes(searchTerm) || searchTerm === '') {
-                row.style.display = '';
-                hasVisibleRows = true;
-            } else {
-                row.style.display = 'none';
-            }
+                // Hiển thị Modal
+                $('#messageModal').modal('show');
+            });
         });
-
-        // Hiển thị thông báo nếu không tìm thấy
-        const emptyState = document.querySelector('.empty-state');
-        if (!hasVisibleRows && rows.length > 0) {
-            if (!emptyState) {
-                const tbody = document.querySelector('#contactTable tbody');
-                const noResults = `
-                    <tr>
-                        <td colspan="6" class="empty-state">
-                            <div class="empty-icon">
-                                <i class="fas fa-search"></i>
-                            </div>
-                            <h5 class="text-gray-600 mb-2">Không tìm thấy kết quả</h5>
-                            <p class="text-muted mb-4">Không có tin nhắn nào phù hợp với "${searchTerm}"</p>
-                            <button class="btn btn-outline-primary" onclick="clearSearch()">
-                                <i class="fas fa-times me-2"></i>Xóa tìm kiếm
-                            </button>
-                        </td>
-                    </tr>`;
-                tbody.innerHTML = noResults;
-            }
-        } else if (emptyState && searchTerm === '') {
-            // Nếu đã xóa tìm kiếm, khôi phục lại danh sách
-            refreshPage();
-        }
-    });
-
-    // Hàm xóa tìm kiếm
-    function clearSearch() {
-        document.getElementById('searchInput').value = '';
-        const event = new Event('input');
-        document.getElementById('searchInput').dispatchEvent(event);
-    }
-
-    // Hàm làm mới trang
-    function refreshPage() {
-        window.location.reload();
-    }
-
-    // Khởi tạo tooltip
-    document.addEventListener('DOMContentLoaded', function() {
-        const tooltips = document.querySelectorAll('[title]');
-        tooltips.forEach(el => {
-            new bootstrap.Tooltip(el);
-        });
-    });
-
-    // Auto-refresh mỗi 30 giây nếu có tin nhắn mới
-    @if (Model != null && Model.Any(x => x.TRANGTHAI == "Chưa xem" || x.TRANGTHAI == null))
-    {
-        <text>
-        setTimeout(() => {
-            refreshPage();
-        }, 30000);
-        </text>
-    }
-</script>
+    </script>
+}
