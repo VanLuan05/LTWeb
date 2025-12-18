@@ -26,8 +26,8 @@ namespace QL_BanHoa.Controllers
             // 1. Thống kê Tổng đơn hàng
             model.SoLuongDonHang = db.DonHangs.Count();
 
-            // 2. Thống kê Tổng doanh thu (Nếu null thì trả về 0)
-            model.TongDoanhThu = db.DonHangs.Sum(n => n.TONGTIEN) ?? 0;
+            // 2. Thống kê Tổng doanh thu, chỉ tính những đơn hàng nào đã giao thành công
+            model.TongDoanhThu = db.DonHangs.Where(n => n.TRANG_THAI == "Đã giao").Sum(n => n.TONGTIEN) ?? 0;
 
             // 3. Thống kê Tổng sản phẩm
             model.SoLuongSanPham = db.SanPhams.Count();
@@ -53,12 +53,12 @@ namespace QL_BanHoa.Controllers
                 // Tính tổng tiền của tháng i trong năm nay
                 // Thêm .Value vào để lấy giá trị ngày tháng thực
                 decimal tongTienThang = db.DonHangs
-                    .Where(n => n.NGAYDAT.HasValue && n.NGAYDAT.Value.Month == i && n.NGAYDAT.Value.Year == namHienTai)
+                    .Where(n => n.NGAYDAT.HasValue && n.NGAYDAT.Value.Month == i && n.NGAYDAT.Value.Year == namHienTai && n.TRANG_THAI == "Đã giao")
                     .Sum(n => n.TONGTIEN) ?? 0;
 
                 model.ChartDoanhThu.Add(tongTienThang);
 
-                // Giả sử Lợi nhuận là 30% doanh thu (Bạn có thể sửa logic này sau)
+                // Giả sử lợi nhuận là 30% doanh thu
                 model.ChartLoiNhuan.Add(tongTienThang * 0.3m);
             }
 
@@ -186,6 +186,11 @@ namespace QL_BanHoa.Controllers
             ViewBag.MaDanhMucChaHienTai = maDanhMucCha;
             // Dictionary để hiển thị tên danh mục cha
             ViewBag.TraCuuDanhMuc = db.DanhMucs.ToDictionary(x => x.MADM, x => x.TENDM);
+
+            // Tính toán số lượng hoa có trong danh mục đó
+            var soLuongHoa = db.SanPhams.Where(p => p.MADM != null).GroupBy(p => p.MADM).ToDictionary(g => g.Key.Value, g => g.Count());
+            // Gửi dữ liệu qua View
+            ViewBag.DemSoLuongHoa = soLuongHoa;
 
             return View(danhSachHienThi);
         }
@@ -670,6 +675,87 @@ namespace QL_BanHoa.Controllers
             return View(users);
 
         }
+        // GET: Hiển thị form sửa tài khoản
+        [HttpGet]
+        public ActionResult EditAccount(int id)
+        {
+            // Tìm tài khoản theo ID
+            var user = db.NguoiDungs.Find(id);
+            if (user == null)
+            {
+                TempData["Loi"] = "Không tìm thấy tài khoản người dùng.";
+                return RedirectToAction("TaiKhoan");
+            }
+            return View(user);
+        }
+
+        // POST: Thực hiện cập nhật tài khoản
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult EditAccount(NguoiDung nguoiDung)
+        {
+            if (ModelState.IsValid)
+            {
+                var userInDB = db.NguoiDungs.Find(nguoiDung.MAND);
+                if (userInDB != null)
+                {
+                    // Cập nhật các thông tin cho phép sửa
+                    userInDB.HOTEN = nguoiDung.HOTEN;
+                    userInDB.EMAIL = nguoiDung.EMAIL;
+                    userInDB.SODIENTHOAI = nguoiDung.SODIENTHOAI;
+                    userInDB.DIACHI = nguoiDung.DIACHI;
+                    userInDB.VAITRO = nguoiDung.VAITRO; // Cập nhật quyền hạn (Khách hàng/Quản trị)
+
+                    db.SaveChanges();
+                    TempData["ThongBao"] = $"Cập nhật tài khoản {userInDB.TENDANGNHAP} thành công!";
+                    return RedirectToAction("TaiKhoan");
+                }
+            }
+
+            TempData["Loi"] = "Cập nhật thất bại. Vui lòng kiểm tra lại thông tin.";
+            return View(nguoiDung);
+        }
+
+        // XÓA TÀI KHOẢN (POST)
+        [HttpPost]
+        public ActionResult DeleteAccount(int id)
+        {
+            var user = db.NguoiDungs.Find(id);
+            if (user != null)
+            {
+                // Kiểm tra xem tài khoản có đơn hàng không
+                bool coDonHang = db.DonHangs.Any(dh => dh.MAND == id);
+                if (coDonHang)
+                {
+                    TempData["Loi"] = $"Không thể xóa tài khoản '{user.HOTEN}' vì đã có lịch sử mua hàng.";
+                    return RedirectToAction("TaiKhoan");
+                }
+
+                try
+                {
+                    // Xóa giỏ hàng trước (nếu có)
+                    var gioHangs = db.GioHangs.Where(gh => gh.MAND == id).ToList();
+                    db.GioHangs.RemoveRange(gioHangs);
+
+                    // Xóa người dùng
+                    db.NguoiDungs.Remove(user);
+                    db.SaveChanges();
+
+                    TempData["ThongBao"] = $"Đã xóa tài khoản '{user.HOTEN}' thành công!";
+                }
+                catch (Exception)
+                {
+                    TempData["Loi"] = "Không thể xóa tài khoản này do lỗi hệ thống.";
+                }
+            }
+            else
+            {
+                TempData["Loi"] = "Không tìm thấy tài khoản cần xóa.";
+            }
+
+            return RedirectToAction("TaiKhoan");
+        }
+
         public ActionResult Logout()
         {
             FormsAuthentication.SignOut(); 

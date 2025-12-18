@@ -1,0 +1,72 @@
+﻿@model QL_BanHoa.NguoiDung
+
+@{
+    ViewBag.Title = "Cập Nhật Tài Khoản";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-md">
+    <div class="flex justify-between items-center mb-6">
+        <h3 class="text-xl font-semibold text-gray-800">Cập Nhật Thông Tin Tài Khoản</h3>
+        <a href="@Url.Action("TaiKhoan", "Admin")" class="text-gray-500 hover:text-gray-700">
+            <i class="fas fa-arrow-left"></i> Quay lại
+        </a>
+    </div>
+
+    @using (Html.BeginForm("EditAccount", "Admin", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(m => m.MAND)
+        @Html.HiddenFor(m => m.TENDANGNHAP) @* Giữ nguyên tên đăng nhập *@
+        @Html.HiddenFor(m => m.MATKHAU)     @* Giữ nguyên mật khẩu *@
+
+        <div class="space-y-6">
+            
+            @* Tên đăng nhập (Readonly) *@
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Tên Đăng Nhập</label>
+                <input type="text" value="@Model.TENDANGNHAP" disabled class="w-full px-4 py-2 border border-gray-200 bg-gray-100 rounded-lg text-gray-500 cursor-not-allowed">
+            </div>
+
+            @* Họ tên *@
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Họ Tên</label>
+                @Html.TextBoxFor(m => m.HOTEN, new { @class = "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500", required = "required" })
+            </div>
+
+            @* Email *@
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                @Html.TextBoxFor(m => m.EMAIL, new { @class = "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500", type = "email" })
+            </div>
+
+            @* Số điện thoại *@
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Số Điện Thoại</label>
+                @Html.TextBoxFor(m => m.SODIENTHOAI, new { @class = "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" })
+            </div>
+
+            @* Địa chỉ *@
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Địa Chỉ</label>
+                @Html.TextAreaFor(m => m.DIACHI, new { @class = "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500", rows = "3" })
+            </div>
+
+            @* Vai trò *@
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Vai Trò</label>
+                <select name="VAITRO" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="Khách hàng" @(Model.VAITRO == "Khách hàng" ? "selected" : "")>Khách hàng</option>
+                    <option value="Quản trị" @(Model.VAITRO == "Quản trị" ? "selected" : "")>Quản trị viên</option>
+                </select>
+            </div>
+
+            @* Submit *@
+            <div class="flex justify-end pt-4 border-t border-gray-200">
+                <button type="submit" class="px-6 py-2 bg-indigo-600 text-white font-medium rounded-lg shadow-md hover:bg-indigo-700 transition-all">
+                    <i class="fas fa-save mr-2"></i> Lưu Thay Đổi
+                </button>
+            </div>
+        </div>
+    }
+</div>
