@@ -56,23 +56,22 @@
                                     <div class="cover-tensp">
                                         <div class="tensp">@item.TENSP</div>
                                         <div style="color:black">
-                                            @{
-                                                decimal? giaGoc = item.GIA;
-                                                if (item.KHUYENMAI != null && item.KHUYENMAI.PHANTRAMGIAM > 0)
-                                                {
-                                                    giaGoc = item.GIA / (1 - (item.KHUYENMAI.PHANTRAMGIAM / 100m));
-                                                }
-                                            }
-                                            @if (item.KHUYENMAI != null && giaGoc.HasValue)
-                                            {
-                                                <span class="textmhgach">@giaGoc.Value.ToString("N0")đ</span>
-                                            }
+                                            <span class="textmhgach">@((item.GIA * 1.2m)?.ToString("N0"))đ</span>
                                             <br /><span class="h5 text-danger mb-0">@String.Format("{0:N0}₫", item.GIA)</span>
                                         </div>
                                         <div class="mt-2">
-                                            <a href="@Url.Action("ThemGioHang", "GioHang", new { MaSP = item.MASP, url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
-                                                <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
-                                            </a>
+                                            @if (Session["TaiKhoan"] != null)
+                                            {
+                                                <a href="@Url.Action("ThemGioHang", "GioHang", new { @MaSP = item.MASP, @url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
+                                                    <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <a href="javascript:void(0);" onclick="alert('Bạn cần đăng nhập để thực hiện chức năng này!'); window.location.href='/Login?duongdan=@Request.Url.ToString()';" class="btn btn-sm btn-success" style="width:100%">
+                                                    <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                                </a>
+                                            }
                                         </div>
                                     </div>
                                 </a>
@@ -102,9 +101,18 @@
                                             <br /><span class="h5 text-danger mb-0">@String.Format("{0:N0}₫", item.GIA)</span>
                                         </div>
                                         <div class="mt-2">
-                                            <a href="@Url.Action("ThemGioHang", "GioHang", new { MaSP = item.MASP, url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
-                                                <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
-                                            </a>
+                                            @if (Session["TaiKhoan"] != null)
+                                            {
+                                                <a href="@Url.Action("ThemGioHang", "GioHang", new { @MaSP = item.MASP, @url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
+                                                    <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <a href="javascript:void(0);" onclick="alert('Bạn cần đăng nhập để thực hiện chức năng này!'); window.location.href='/Login?duongdan=@Request.Url.ToString()';" class="btn btn-sm btn-success" style="width:100%">
+                                                    <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                                </a>
+                                            }
                                         </div>
                                     </div>
                                 </a>
@@ -161,9 +169,18 @@
                                     <br /><span class="h5 text-danger mb-0">@String.Format("{0:N0}₫", item.GIA)</span>
                                 </div>
                                 <div class="mt-2">
-                                    <a href="@Url.Action("ThemGioHang", "GioHang", new { MaSP = item.MASP, url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
-                                        <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
-                                    </a>
+                                    @if (Session["TaiKhoan"] != null)
+                                    {
+                                        <a href="@Url.Action("ThemGioHang", "GioHang", new { @MaSP = item.MASP, @url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
+                                            <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a href="javascript:void(0);" onclick="alert('Bạn cần đăng nhập để thực hiện chức năng này!'); window.location.href='/Login?duongdan=@Request.Url.ToString()';" class="btn btn-sm btn-success" style="width:100%">
+                                            <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                        </a>
+                                    }
                                 </div>
                             </div>
                         </a>
@@ -204,9 +221,18 @@
                                     <br /><span class="h5 text-danger mb-0">@String.Format("{0:N0}₫", item.GIA)</span>
                                 </div>
                                 <div class="mt-2">
-                                    <a href="@Url.Action("ThemGioHang", "GioHang", new { MaSP = item.MASP, url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
-                                        <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
-                                    </a>
+                                    @if (Session["TaiKhoan"] != null)
+                                    {
+                                        <a href="@Url.Action("ThemGioHang", "GioHang", new { @MaSP = item.MASP, @url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
+                                            <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a href="javascript:void(0);" onclick="alert('Bạn cần đăng nhập để thực hiện chức năng này!'); window.location.href='/Login?duongdan=@Request.Url.ToString()';" class="btn btn-sm btn-success" style="width:100%">
+                                            <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                        </a>
+                                    }
                                 </div>
                             </div>
                         </a>
@@ -249,9 +275,18 @@
                                     <br /><span class="h5 text-danger mb-0">@String.Format("{0:N0}₫", item.GIA)</span>
                                 </div>
                                 <div class="mt-2">
-                                    <a href="@Url.Action("ThemGioHang", "GioHang", new { MaSP = item.MASP, url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
-                                        <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
-                                    </a>
+                                    @if (Session["TaiKhoan"] != null)
+                                    {
+                                        <a href="@Url.Action("ThemGioHang", "GioHang", new { @MaSP = item.MASP, @url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
+                                            <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a href="javascript:void(0);" onclick="alert('Bạn cần đăng nhập để thực hiện chức năng này!'); window.location.href='/Login?duongdan=@Request.Url.ToString()';" class="btn btn-sm btn-success" style="width:100%">
+                                            <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                        </a>
+                                    }
                                 </div>
                             </div>
                         </a>
@@ -346,9 +381,18 @@
                                             <span class="textmhgach">@((item.GIA * 1.15m)?.ToString("N0"))đ</span>
                                             <br /><span class="h5 text-danger mb-0">@String.Format("{0:N0}₫", item.GIA)</span>
                                             <div class="mt-2">
-                                                <a href="@Url.Action("ThemGioHang", "GioHang", new { MaSP = item.MASP, url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
-                                                    <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
-                                                </a>
+                                                @if (Session["TaiKhoan"] != null)
+                                                {
+                                                    <a href="@Url.Action("ThemGioHang", "GioHang", new { @MaSP = item.MASP, @url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
+                                                        <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <a href="javascript:void(0);" onclick="alert('Bạn cần đăng nhập để thực hiện chức năng này!'); window.location.href='/Login?duongdan=@Request.Url.ToString()';" class="btn btn-sm btn-success" style="width:100%">
+                                                        <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                                    </a>
+                                                }
                                             </div>
                                         </div>
                                     </div>
@@ -382,9 +426,18 @@
                                             <br /><span class="h5 text-danger mb-0">@String.Format("{0:N0}₫", item.GIA)</span>
                                         </div>
                                         <div class="mt-2">
-                                            <a href="@Url.Action("ThemGioHang", "GioHang", new { MaSP = item.MASP, url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
-                                                <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
-                                            </a>
+                                            @if (Session["TaiKhoan"] != null)
+                                            {
+                                                <a href="@Url.Action("ThemGioHang", "GioHang", new { @MaSP = item.MASP, @url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
+                                                    <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <a href="javascript:void(0);" onclick="alert('Bạn cần đăng nhập để thực hiện chức năng này!'); window.location.href='/Login?duongdan=@Request.Url.ToString()';" class="btn btn-sm btn-success" style="width:100%">
+                                                    <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                                </a>
+                                            }
                                         </div>
                                     </div>
                                 </a>
@@ -414,9 +467,18 @@
                                             <br /><span class="h5 text-danger mb-0">@String.Format("{0:N0}₫", item.GIA)</span>
                                         </div>
                                         <div class="mt-2">
-                                            <a href="@Url.Action("ThemGioHang", "GioHang", new { MaSP = item.MASP, url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
-                                                <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
-                                            </a>
+                                            @if (Session["TaiKhoan"] != null)
+                                            {
+                                                <a href="@Url.Action("ThemGioHang", "GioHang", new { @MaSP = item.MASP, @url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
+                                                    <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <a href="javascript:void(0);" onclick="alert('Bạn cần đăng nhập để thực hiện chức năng này!'); window.location.href='/Login?duongdan=@Request.Url.ToString()';" class="btn btn-sm btn-success" style="width:100%">
+                                                    <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                                </a>
+                                            }
                                         </div>
                                     </div>
                                 </a>
@@ -474,9 +536,18 @@
                                             <br /><span class="h5 text-danger mb-0">@String.Format("{0:N0}₫", item.GIA)</span>
                                         </div>
                                         <div class="mt-2">
-                                            <a href="@Url.Action("ThemGioHang", "GioHang", new { MaSP = item.MASP, url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
-                                                <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
-                                            </a>
+                                            @if (Session["TaiKhoan"] != null)
+                                            {
+                                                <a href="@Url.Action("ThemGioHang", "GioHang", new { @MaSP = item.MASP, @url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
+                                                    <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <a href="javascript:void(0);" onclick="alert('Bạn cần đăng nhập để thực hiện chức năng này!'); window.location.href='/Login?duongdan=@Request.Url.ToString()';" class="btn btn-sm btn-success" style="width:100%">
+                                                    <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                                </a>
+                                            }
                                         </div>
                                     </div>
                                 </a>
@@ -506,9 +577,18 @@
                                             <br /><span class="h5 text-danger mb-0">@String.Format("{0:N0}₫", item.GIA)</span>
                                         </div>
                                         <div class="mt-2">
-                                            <a href="@Url.Action("ThemGioHang", "GioHang", new { MaSP = item.MASP, url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
-                                                <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
-                                            </a>
+                                            @if (Session["TaiKhoan"] != null)
+                                            {
+                                                <a href="@Url.Action("ThemGioHang", "GioHang", new { @MaSP = item.MASP, @url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
+                                                    <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <a href="javascript:void(0);" onclick="alert('Bạn cần đăng nhập để thực hiện chức năng này!'); window.location.href='/Login?duongdan=@Request.Url.ToString()';" class="btn btn-sm btn-success" style="width:100%">
+                                                    <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                                </a>
+                                            }
                                         </div>
                                     </div>
                                 </a>
@@ -538,9 +618,18 @@
                                             <br /><span class="h5 text-danger mb-0">@String.Format("{0:N0}₫", item.GIA)</span>
                                         </div>
                                         <div class="mt-2">
-                                            <a href="@Url.Action("ThemGioHang", "GioHang", new { MaSP = item.MASP, url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
-                                                <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
-                                            </a>
+                                            @if (Session["TaiKhoan"] != null)
+                                            {
+                                                <a href="@Url.Action("ThemGioHang", "GioHang", new { @MaSP = item.MASP, @url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
+                                                    <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <a href="javascript:void(0);" onclick="alert('Bạn cần đăng nhập để thực hiện chức năng này!'); window.location.href='/Login?duongdan=@Request.Url.ToString()';" class="btn btn-sm btn-success" style="width:100%">
+                                                    <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                                </a>
+                                            }
                                         </div>
                                     </div>
                                 </a>

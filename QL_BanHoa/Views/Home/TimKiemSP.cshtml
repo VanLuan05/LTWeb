@@ -26,34 +26,41 @@
 
             @if (Model != null && Model.Any())
             {
-                <div class="row g-4">
+                <div class="product-box2mh">
                     @foreach (var item in Model)
                     {
-                        <div class="col-lg-3 col-md-4 col-sm-6">
-                            <div class="card h-100 shadow-sm">
-                                <div class="position-relative">
-                                    <img src="~/Content/hinhanh/@item.URL_ANH" class="card-img-top" alt="@item.TENSP" style="height: 250px; object-fit: cover;">
-                                    <div class="position-absolute top-0 end-0 m-2">
-                                        <span class="badge bg-success">@item.TRANGTHAI</span>
+                        <div class="box2mh">
+                            <a href="@Url.Action("ChiTiet", "Home", new { id = item.MASP })" style="text-decoration:none">
+                                <div class="covermh-img">
+                                    <img src="~/Content/hinhanh/@item.URL_ANH" alt="@item.TENSP" />
+                                    @if (item.KHUYENMAI != null)
+                                    {
+                                        <span class="tagmh">-@item.KHUYENMAI.PHANTRAMGIAM%</span>
+                                    }
+                                    <span class="tagmh1"><b>NEW</b></span>
+                                </div>
+                                <div class="cover-tensp">
+                                    <div class="tensp">@item.TENSP</div>
+                                    <div style="color:black">
+                                        <span class="textmhgach">@((item.GIA * 1.2m)?.ToString("N0"))đ</span>
+                                        <br /><span class="h5 text-danger mb-0">@String.Format("{0:N0}₫", item.GIA)</span>
+                                    </div>
+                                    <div class="mt-2">
+                                        @if (Session["TaiKhoan"] != null)
+                                        {
+                                            <a href="@Url.Action("ThemGioHang", "GioHang", new { @MaSP = item.MASP, @url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
+                                                <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <a href="javascript:void(0);" onclick="alert('Bạn cần đăng nhập để thực hiện chức năng này!'); window.location.href='/Login?duongdan=@Request.Url.ToString()';" class="btn btn-sm btn-success" style="width:100%">
+                                                <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                            </a>
+                                        }
                                     </div>
                                 </div>
-                                <div class="card-body d-flex flex-column">
-                                    <h5 class="card-title" style="color: #036b03;">@item.TENSP</h5>
-                                    <p class="card-text text-muted small flex-grow-1">
-                                        @((item.MOTA ?? "").Length > 100 ? item.MOTA.Substring(0, 100) + "..." : (item.MOTA ?? "Đang cập nhật..."))
-                                    </p>
-                                    <div class="mt-auto">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <span class="h5 text-danger mb-0">@String.Format("{0:N0}₫", item.GIA)</span>
-                                            <div class="mt-2">
-                                                <a href="@Url.Action("ThemGioHang", "GioHang", new { MaSP = item.MASP, url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
-                                                    <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            </a>
                         </div>
                     }
                 </div>

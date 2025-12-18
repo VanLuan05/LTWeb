@@ -79,9 +79,20 @@
                         <button class="btn btn-outline-secondary" type="button" onclick="updateQuantity(1)">+</button>
                     </div>
 
-                    <button type="submit" class="btn btn-success fw-bold px-4 py-2">
-                        <i class="fa fa-shopping-cart me-2"></i> THÊM VÀO GIỎ
-                    </button>
+                    <div class="mt-2">
+                        @if (Session["TaiKhoan"] != null)
+                        {
+                            <a href="@Url.Action("ThemGioHang", "GioHang", new { @MaSP = Model.MASP, @url = Request.Url.ToString() })" class="btn btn-sm btn-success" style="width:100%">
+                                <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                            </a>
+                        }
+                        else
+                        {
+                            <a href="javascript:void(0);" onclick="alert('Bạn cần đăng nhập để thực hiện chức năng này!'); window.location.href='/Login?duongdan=@Request.Url.ToString()';" class="btn btn-sm btn-success" style="width:100%">
+                                <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                            </a>
+                        }
+                    </div>
                 </div>
             }
 

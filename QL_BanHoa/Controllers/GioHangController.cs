@@ -105,23 +105,7 @@ namespace QL_BanHoa.Controllers
                 List<GioHang> ghHienTai = db.GioHangs.Where(n => n.MAND == user.MAND).ToList();
                 Session["SoLuong"] = ghHienTai.Sum(n => n.SOLUONG);
             }
-            // TRƯỜNG HỢP 2: CHƯA ĐĂNG NHẬP -> LƯU VÀO SESSION (Code cũ)
-            else
-            {
-                List<GioHang> dsGioHang = LayGioHang();
-                GioHang sanpham = dsGioHang.FirstOrDefault(sp => sp.MASP == MaSP);
-                if (sanpham == null)
-                {
-                    sanpham = new GioHang(MaSP, SoLuong); // Dùng Constructor của bạn
-                    dsGioHang.Add(sanpham);
-                }
-                else
-                {
-                    sanpham.SOLUONG += SoLuong;
-                    sanpham.THANHTIEN += SoLuong * sanpham.Gia;
-                }
-                Session["SoLuong"] = dsGioHang.Sum(s => s.SOLUONG);
-            }
+         
 
             return Redirect(url);
         }
