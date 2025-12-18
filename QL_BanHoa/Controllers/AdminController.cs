@@ -856,7 +856,7 @@ namespace QL_BanHoa.Controllers
                 {
                     TieuDe = "Thành viên mới",
                     NoiDung = item.HOTEN + " vừa đăng ký.",
-                    ThoiGian = DateTime.Now, 
+                  
                     Loai = "user",
                     LinkLienKet = "/Admin/TaiKhoan"
                 });
@@ -880,6 +880,31 @@ namespace QL_BanHoa.Controllers
                     x.LinkLienKet
                 })
             }, JsonRequestBehavior.AllowGet);
+        }
+        // Đánh dấu tất cả thông báo đã đọc
+        [HttpPost]
+        public JsonResult MarkAllRead()
+        {
+            try
+            {
+                // Tìm tất cả tin nhắn chưa xem
+                var unreadContacts = db.LienHes.Where(x => x.TRANGTHAI == "Chưa xem").ToList();
+
+                if (unreadContacts.Any())
+                {
+                    foreach (var item in unreadContacts)
+                    {
+                        item.TRANGTHAI = "Đã xem";
+                    }
+                    db.SaveChanges();
+                }
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
     }
 }

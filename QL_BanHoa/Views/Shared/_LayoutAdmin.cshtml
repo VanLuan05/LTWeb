@@ -158,7 +158,10 @@
                             <div id="notif-dropdown" class="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-2xl overflow-hidden z-50 hidden border border-gray-100 transform origin-top-right transition-all duration-200">
                                 <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
                                     <h3 class="text-sm font-bold text-gray-700">Thông báo</h3>
-                                    <span class="text-xs text-indigo-600 hover:underline cursor-pointer">Đánh dấu đã đọc</span>
+
+                                    <span id="btn-mark-read" class="text-xs text-indigo-600 hover:underline cursor-pointer select-none">
+                                        Đánh dấu đã đọc
+                                    </span>
                                 </div>
 
                                 <div id="notif-list" class="max-h-80 overflow-y-auto">
@@ -185,96 +188,124 @@
     </div>
 
     @RenderSection("scripts", required: false)
-    <script>
-        $(document).ready(function () {
-            // 1. Gọi API lấy thông báo khi trang vừa tải xong
-            loadNotifications();
+<script type="text/javascript">
+    $(document).ready(function () {
 
-            // 2. Xử lý đóng/mở Dropdown khi bấm chuông
-            $('#btn-bell').click(function (e) {
-                e.stopPropagation(); // Ngăn sự kiện click lan ra ngoài
-                $('#notif-dropdown').toggleClass('hidden');
-            });
+        // 1. XỬ LÝ ẨN/HIỆN MENU
+        $('#btn-bell').click(function(e) {
+            e.stopPropagation();
+            $('#notif-dropdown').toggleClass('hidden');
+        });
 
-            // 3. Đóng Dropdown khi click ra ngoài
-            $(document).click(function (e) {
-                if (!$(e.target).closest('#notification-container').length) {
-                    $('#notif-dropdown').addClass('hidden');
+        $(document).click(function() {
+            if (!$('#notif-dropdown').hasClass('hidden')) {
+                $('#notif-dropdown').addClass('hidden');
+            }
+        });
+
+        $('#notif-dropdown').click(function(e) {
+            e.stopPropagation();
+        });
+
+        // --- 2. XỬ LÝ NÚT "ĐÁNH DẤU ĐÃ ĐỌC" (MỚI THÊM) ---
+        $('#btn-mark-read').click(function() {
+            var btn = $(this);
+            var originalText = btn.text();
+
+            // Hiệu ứng đang xử lý
+            btn.text('Đang xử lý...');
+            btn.addClass('text-gray-400').removeClass('text-indigo-600 cursor-pointer');
+
+            $.ajax({
+                url: '@Url.Action("MarkAllRead", "Admin")',
+                type: 'POST',
+                success: function(res) {
+                    if(res.success) {
+                        // Load lại danh sách thông báo ngay lập tức
+                        updateNotifications();
+
+                        // Trả lại trạng thái nút
+                        setTimeout(function(){
+                            btn.text('Đã xong');
+                        }, 500);
+
+                        // Reset text sau 2 giây
+                        setTimeout(function(){
+                            btn.text(originalText);
+                            btn.removeClass('text-gray-400').addClass('text-indigo-600 cursor-pointer');
+                        }, 2000);
+                    }
+                },
+                error: function() {
+                    alert('Có lỗi xảy ra khi cập nhật.');
+                    btn.text(originalText);
                 }
             });
-
-            function loadNotifications() {
-                $.ajax({
-                    url: '/Admin/GetNotifications', // Đường dẫn tới Controller
-                    type: 'GET',
-                    success: function (res) {
-                        // --- Cập nhật số lượng ---
-                        if (res.Count > 0) {
-                            $('#notif-count').text(res.Count).removeClass('hidden');
-                        } else {
-                            $('#notif-count').addClass('hidden');
-                        }
-
-                        // --- Render danh sách ---
-                        var html = '';
-                        if (res.List.length === 0) {
-                            html = `
-                                <div class="flex flex-col items-center justify-center py-6 px-4 text-center">
-                                    <i class="fas fa-check-circle text-4xl text-green-100 mb-2"></i>
-                                    <p class="text-gray-500 text-sm">Không có thông báo mới nào!</p>
-                                </div>`;
-                        } else {
-                            $.each(res.List, function (i, item) {
-                                // Chọn màu và icon dựa theo loại
-                                let iconHtml = '';
-                                let bgClass = '';
-
-                                if (item.Loai === 'order') {
-                                    iconHtml = '<i class="fas fa-shopping-cart text-green-600"></i>';
-                                    bgClass = 'bg-green-100';
-                                } else if (item.Loai === 'cancel') {
-                                    iconHtml = '<i class="fas fa-times-circle text-red-600"></i>';
-                                    bgClass = 'bg-red-100';
-                                } else if (item.Loai === 'contact') {
-                                    iconHtml = '<i class="fas fa-comment-dots text-yellow-600"></i>';
-                                    bgClass = 'bg-yellow-100';
-                                } else {
-                                    iconHtml = '<i class="fas fa-user text-blue-600"></i>';
-                                    bgClass = 'bg-blue-100';
-                                }
-
-                                // Template HTML cho từng dòng (Style Tailwind)
-                                html += `
-                                    <a href="${item.Link}" class="block px-4 py-3 hover:bg-gray-50 transition border-b border-gray-100 last:border-0 group">
-                                        <div class="flex items-start">
-                                            <div class="flex-shrink-0">
-                                                <div class="w-10 h-10 rounded-full ${bgClass} flex items-center justify-center text-lg">
-                                                    ${iconHtml}
-                                                </div>
-                                            </div>
-                                            <div class="ml-3 w-0 flex-1">
-                                                <p class="text-sm font-medium text-gray-900 group-hover:text-indigo-600 transition">${item.TieuDe}</p>
-                                                <p class="text-xs text-gray-500 mt-0.5 truncate">${item.NoiDung}</p>
-                                                <p class="text-xs text-gray-400 mt-1 flex items-center">
-                                                    <i class="far fa-clock mr-1"></i> ${item.ThoiGian}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </a>
-                                `;
-                            });
-                        }
-                        $('#notif-list').html(html);
-                    },
-                    error: function () {
-                        console.log("Lỗi tải thông báo.");
-                    }
-                });
-            }
-
-            // (Tùy chọn) Tự động cập nhật mỗi 60 giây
-            // setInterval(loadNotifications, 60000);
         });
-    </script>
+
+        // 3. TỰ ĐỘNG CẬP NHẬT THÔNG BÁO
+        updateNotifications();
+        setInterval(function () {
+            updateNotifications();
+        }, 5000);
+    });
+
+    function updateNotifications() {
+        $.ajax({
+            url: '@Url.Action("GetNotifications", "Admin")',
+            type: 'GET',
+            dataType: 'json',
+            cache: false,
+            success: function (response) {
+                // A. Cập nhật Badge số lượng
+                var badge = $('#notif-count');
+                if (response.Count > 0) {
+                    badge.text(response.Count);
+                    badge.removeClass('hidden');
+                } else {
+                    badge.addClass('hidden');
+                }
+
+                // B. Vẽ danh sách
+                var htmlContent = '';
+                if (response.List && response.List.length > 0) {
+                    $.each(response.List, function (index, item) {
+                        var iconInfo = getIconStyle(item.Loai);
+                        htmlContent += `
+                            <a href="${item.LinkLienKet}" class="block px-4 py-3 hover:bg-gray-50 border-b border-gray-100 transition duration-150">
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0">
+                                        <span class="inline-flex items-center justify-center h-10 w-10 rounded-full ${iconInfo.bg}">
+                                            <i class="fas ${iconInfo.icon} text-white"></i>
+                                        </span>
+                                    </div>
+                                    <div class="ml-3 w-0 flex-1">
+                                        <p class="text-sm font-medium text-gray-900 truncate">${item.TieuDe}</p>
+                                        <p class="text-xs text-gray-500 mt-1 line-clamp-2">${item.NoiDung}</p>
+                                        <p class="text-xs text-indigo-500 mt-1 font-semibold">${item.ThoiGian}</p>
+                                    </div>
+                                </div>
+                            </a>`;
+                    });
+                } else {
+                    htmlContent = `
+                        <div class="p-6 text-center text-gray-400">
+                            <i class="far fa-bell-slash text-3xl mb-2"></i>
+                            <p class="text-sm">Không có thông báo mới</p>
+                        </div>`;
+                }
+                $('#notif-list').html(htmlContent);
+            }
+        });
+    }
+
+    function getIconStyle(loai) {
+        if (loai === "order-new") return { icon: "fa-file-invoice-dollar", bg: "bg-green-500" };
+        if (loai === "order-cancel") return { icon: "fa-times-circle", bg: "bg-red-500" };
+        if (loai === "contact") return { icon: "fa-envelope", bg: "bg-yellow-500" };
+        if (loai === "user") return { icon: "fa-user-plus", bg: "bg-blue-500" };
+        return { icon: "fa-info", bg: "bg-gray-400" };
+    }
+</script>
 </body>
 </html>
