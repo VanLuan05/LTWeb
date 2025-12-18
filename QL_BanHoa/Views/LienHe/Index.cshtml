@@ -25,21 +25,31 @@
             <h3 style="color:#036b03; font-weight:bold;" class="mb-4">GỬI TIN NHẮN CHO BLOOM</h3>
             <p class="text-muted mb-4">Nếu bạn có thắc mắc về đơn hàng, sản phẩm hoặc muốn hợp tác, vui lòng điền vào form bên dưới.</p>
 
+            @{
+                // Lấy thông tin người dùng từ Session (nếu có)
+                var user = Session["TaiKhoan"] as QL_BanHoa.NguoiDung;
+            }
+
             @using (Html.BeginForm("GuiLienHe", "LienHe", FormMethod.Post, new { @class = "p-4 border rounded shadow-sm bg-white" }))
             {
+                @Html.AntiForgeryToken()
+
                 <div class="mb-3">
                     <label class="form-label fw-bold">Họ và Tên</label>
-                    <input type="text" name="HoTen" class="form-control" placeholder="Nhập tên của bạn" required>
+                    <input type="text" name="HoTen" class="form-control" placeholder="Nhập tên của bạn"
+                           value="@(user != null ? user.HOTEN : "")" required>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label fw-bold">Email</label>
-                    <input type="email" name="Email" class="form-control" placeholder="example@gmail.com" required>
+                    <input type="email" name="Email" class="form-control" placeholder="example@gmail.com"
+                           value="@(user != null ? user.EMAIL : "")" required>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label fw-bold">Số điện thoại</label>
-                    <input type="tel" name="SDT" class="form-control" placeholder="09xxxxxxx">
+                    <input type="tel" name="SDT" class="form-control" placeholder="09xxxxxxx"
+                           value="@(user != null ? user.SODIENTHOAI : "")">
                 </div>
 
                 <div class="mb-3">
@@ -47,9 +57,18 @@
                     <textarea name="NoiDung" class="form-control" rows="5" placeholder="Bạn cần hỗ trợ gì?..." required></textarea>
                 </div>
 
-                <button type="submit" class="btn btn-success w-100 fw-bold py-2">
-                    <i class="fa fa-paper-plane me-2"></i> GỬI TIN NHẮN
-                </button>
+                if (Session["TaiKhoan"] != null)
+                {
+                    <button type="submit" class="btn btn-success w-100 fw-bold py-2">
+                        <i class="fa fa-paper-plane me-2"></i> GỬI TIN NHẮN
+                    </button>
+                }
+                else
+                {
+                    <a href="@Url.Action("Index", "Login", new { duongdan = Url.Action("Index", "LienHe") })" class="btn btn-warning w-100 fw-bold py-2 text-dark">
+                        <i class="fa fa-user me-2"></i> ĐĂNG NHẬP ĐỂ GỬI TIN NHẮN
+                    </a>
+                }
             }
         </div>
 
